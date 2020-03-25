@@ -1,5 +1,6 @@
-ecommerce
+database.db
 *.env
+.makerc
 .DS_Store
 *.properties
 
@@ -8,4 +9,3 @@ ecommerce
 .idea/*
 
 coverage.*
-ecommerce-*

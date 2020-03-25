@@ -3,6 +3,7 @@ package stringutils
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -55,4 +56,10 @@ func PrettyJSON(i interface{}) string {
 func PrintJSON(sep string, i interface{}) {
 	str := PrettyJSON(i)
 	fmt.Printf("\n%s\n%s", sep, str)
+}
+
+func TrimSpaceNewlineInString(s string) string {
+	re := regexp.MustCompile(` +\r?\n +`)
+	n := re.ReplaceAllString(s, " ")
+	return strings.ReplaceAll(n, "\n", " ")
 }

@@ -5,13 +5,12 @@ import (
 )
 
 type AppConfig struct {
-	DatabaseURL    string `envconfig:"DATABASE_URL"`
-	LogDestination string `envconfig:"LOG_DEST" default:"stdout"`
-	LogFormat      string `envconfig:"LOG_FORMAT" default:"text"`
-	LogLevel       string `envconfig:"LOG_LEVEL" default:"info"`
-	HTTPPort       string `envconfig:"HTTPPort" default:"15123"`
-	GithubSecret   string `envconfig:"GITHUB_SECRET"`
-	GithubID       string `envconfig:"GITHUB_ID"`
+	DatabaseURL         string `envconfig:"DATABASE_URL"`
+	LogDestination      string `envconfig:"LOG_DEST" default:"stdout"`
+	LogFormat           string `envconfig:"LOG_FORMAT" default:"text"`
+	LogLevel            string `envconfig:"LOG_LEVEL" default:"info"`
+	HTTPPort            string `envconfig:"HTTPPort" default:"15123"`
+	GithubPersonalToken string `envconfig:"GITHUB_PERSONAL_TOKEN"`
 }
 
 var conf *AppConfig

@@ -12,15 +12,15 @@ import (
 type Database struct {
 	connection *sqlx.DB
 	tx         *sqlx.Tx
-    config Config
+	config     Config
 }
 
 type Config struct {
-	URL             string
+	URL string
 }
 
 func New(config Config) *Database {
-    return &Database{config: config}
+	return &Database{config: config}
 }
 
 func (db *Database) Connect() (*sqlx.DB, error) {
@@ -45,11 +45,8 @@ func (db *Database) QueryRow(query string, found interface{}, args ...interface{
 	if err != nil {
 		return err
 	}
-	err = conn.QueryRowx(query, args...).StructScan(&found)
-	if err != nil {
-		return err
-	}
-	return nil
+	err = conn.QueryRowx(query, args...).StructScan(found)
+	return err
 }
 
 func (db *Database) Exec(query string, args ...interface{}) error {
@@ -58,7 +55,7 @@ func (db *Database) Exec(query string, args ...interface{}) error {
 		return err
 	}
 	_, err = conn.Exec(query, args...)
-    return err
+	return err
 }
 
 type ComplexQuery struct {

@@ -7,11 +7,11 @@ import (
 )
 
 type RepositoryContainer struct {
-	RepoRepository      domain.RepoRepository
+	RepoRepository domain.RepoRepository
 }
 
 func NewRepositoryContainer(db *sqlite.Database) *RepositoryContainer {
 	return &RepositoryContainer{
-		RepoRepository:      repo.NewRepoRepository(db),
+		RepoRepository: repo.NewRepoRepository(db),
 	}
 }

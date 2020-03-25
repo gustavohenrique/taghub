@@ -1,8 +1,6 @@
 package repo
 
 import (
-	"context"
-
 	"server/libs/errors"
 	"server/libs/filter"
 	"server/src/domain"
@@ -10,17 +8,16 @@ import (
 )
 
 type RepoRepository struct {
-	db  *sqlite.Database
-	ctx context.Context
+	db *sqlite.Database
 }
 
 func NewRepoRepository(db *sqlite.Database) domain.RepoRepository {
-	return RepoRepository{db, context.Background()}
+	return RepoRepository{db}
 }
 
 func (repo RepoRepository) ReadOne(item domain.Repo) (domain.Repo, error) {
 	var found domain.Repo
-	query := "SELECT * FROM repos WHERE id = $1"
+	query := "SELECT * FROM repos WHERE id = ?"
 	err := repo.db.QueryRow(query, &found, item.ID)
 	if err != nil {
 		code := errors.Detect(err)
@@ -33,7 +30,7 @@ func (repo RepoRepository) Search(filters filter.Request) ([]domain.Repo, int, e
 	var items []domain.Repo
 	var total int
 	err := repo.db.Select().From("repos").Applying(filters).WithTotal(&total).ForEach(func(row interface{}) {
-        item := row.(domain.Repo)
+		item := row.(domain.Repo)
 		items = append(items, item)
 	})
 	if err != nil {
@@ -43,37 +40,33 @@ func (repo RepoRepository) Search(filters filter.Request) ([]domain.Repo, int, e
 	return items, total, nil
 }
 
-func (repo RepoRepository) Create(item domain.Repo) (domain.Repo, error) {
+func (repo RepoRepository) Create(item domain.Repo) error {
 	query := `INSERT INTO repos (
         id,
         name,
         description,
         url,
-        homepage,
-        created_at
+        homepage
     )
-    VALUES (?, ?, ?, ?, ?, now)
-    RETURNING *`
+    VALUES (?, ?, ?, ?, ?)`
 	return repo.upsert(query, item)
 }
 
-func (repo RepoRepository) Update(item domain.Repo) (domain.Repo, error) {
+func (repo RepoRepository) Update(item domain.Repo) error {
 	query := `UPDATE githubs
-    SET name = $2,
-        interval = $3,
-        name = COALESCE(NULLIF($2, ''), name),
-        description = COALESCE(NULLIF($2, ''), description),
-        url = COALESCE(NULLIF($2, ''), url),
-        homepage = COALESCE(NULLIF($2, ''), homepage),
+    SET name = ?,
+        interval = ?,
+        name = COALESCE(NULLIF(?, ''), name),
+        description = COALESCE(NULLIF(?, ''), description),
+        url = COALESCE(NULLIF(?, ''), url),
+        homepage = COALESCE(NULLIF(?, ''), homepage),
         updated_at = now
-    WHERE id = $1
-    RETURNING *`
+    WHERE id = ?`
 	return repo.upsert(query, item)
 }
 
-func (repo RepoRepository) upsert(query string, item domain.Repo) (domain.Repo, error) {
-	var saved domain.Repo
-	err := repo.db.QueryRow(query, &saved,
+func (repo RepoRepository) upsert(query string, item domain.Repo) error {
+	err := repo.db.Exec(query,
 		item.ID,
 		item.Name,
 		item.Description,
@@ -82,7 +75,7 @@ func (repo RepoRepository) upsert(query string, item domain.Repo) (domain.Repo, 
 	)
 	if err != nil {
 		code := errors.Detect(err)
-		return saved, errors.New(code, err.Error())
+		return errors.New(code, err.Error())
 	}
-	return saved, nil
+	return nil
 }

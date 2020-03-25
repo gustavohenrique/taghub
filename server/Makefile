@@ -1,3 +1,5 @@
+include .makerc
+
 .PHONY: build mocks coverage
 
 DB_URL  := "database.db"
@@ -25,11 +27,12 @@ linter:
 	goimports -w src libs
 
 run:
+	@GITHUB_PERSONAL_TOKEN=$(GITHUB_PERSONAL_TOKEN) \
 	DATABASE_URL=$(DB_URL) \
 	go run main.go
 
-seed:
-	@sqlite3 < sql/taghub.sql
+createdb:
+	@sqlite3 $(DATABASE_URL) < sql/taghub.sql
 
 setup:
 	$(GO) get github.com/golang/mock/mockgen@latest

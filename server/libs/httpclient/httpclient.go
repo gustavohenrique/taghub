@@ -19,6 +19,7 @@ type Config struct {
 	Password      string
 	RequestedWith string
 	BaseURL       string
+	Token         string
 	Timeout       time.Duration
 }
 
@@ -34,7 +35,7 @@ func New(config Config) *HTTPClient {
 		config.Accept = "application/json"
 	}
 	if config.UserAgent == "" {
-		config.UserAgent = "ecommerce"
+		config.UserAgent = "taghub"
 	}
 	return &HTTPClient{config}
 }
@@ -49,9 +50,12 @@ func (h *HTTPClient) doRequest(url string, req *fasthttp.Request) ([]byte, int, 
 	defer fasthttp.ReleaseRequest(req)
 	defer fasthttp.ReleaseResponse(resp)
 
-	if h.config.Username != "" || h.config.Password != "" {
+	if h.config.Token != "" {
+		req.Header.Set(fasthttp.HeaderAuthorization, "Bearer "+h.config.Token)
+	} else if h.config.Username != "" || h.config.Password != "" {
 		req.Header.Set(fasthttp.HeaderAuthorization, "Basic "+basicAuth(h.config.Username, h.config.Password))
 	}
+
 	if h.config.RequestedWith != "" {
 		req.Header.Set("X-Requested-With", h.config.RequestedWith)
 	}
