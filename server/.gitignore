@@ -1,0 +1,11 @@
+ecommerce
+*.env
+.DS_Store
+*.properties
+
+*.swp
+*.swo
+.idea/*
+
+coverage.*
+ecommerce-*
