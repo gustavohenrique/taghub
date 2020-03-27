@@ -61,7 +61,7 @@ export default {
       return [
         {
           label: 'Repositories',
-          route: { name: 'sync' }
+          route: { name: 'repositories' }
         },
         {
           label: 'Tags',

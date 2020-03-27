@@ -23,7 +23,6 @@
         title="Added repositories"
         :data="items"
         :columns="columns"
-        square
         bordered
         flat
         row-key="id"

@@ -14,6 +14,7 @@ type Viewer struct {
 
 type StarredRepositories struct {
 	Edges []Edge `json:"edges"`
+	Total int64  `json:"totalCount"`
 }
 
 type Edge struct {

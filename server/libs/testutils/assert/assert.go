@@ -18,6 +18,16 @@ func Equal(t *testing.T, a interface{}, b interface{}, message string) {
 	t.Fatal(message)
 }
 
+func True(t *testing.T, a bool, message string) {
+	if a {
+		return
+	}
+	if len(message) == 0 {
+		message = fmt.Sprintf("\n%v is false", a)
+	}
+	t.Fatal(message)
+}
+
 func NotEqual(t *testing.T, a interface{}, b interface{}, message string) {
 	if a != b {
 		return

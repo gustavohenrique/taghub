@@ -32,7 +32,7 @@ module.exports = function (ctx) {
       config: {
         brand: {
           primary: '#434343',
-          secondary: '#81BF97',
+          secondary: '#C4C4C4',
           accent: '#9C27B0',
 
           dark: '#1d1d1d',

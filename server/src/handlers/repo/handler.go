@@ -1,7 +1,6 @@
 package repo
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -27,10 +26,13 @@ func NewRepoHandler(services *service.ServiceContainer) *RepoHandler {
 func (h *RepoHandler) AddRoutesTo(api *echo.Group) {
 	route := api.Group("/repo")
 	route.POST("", h.Create)
-	route.PUT("/:id", h.Update)
 	route.GET("/:id", h.ReadOne)
-	route.GET("/sync", h.Sync)
+	route.GET("/sync", h.GetTotalStarredRepositories)
+	route.POST("/sync", h.Sync)
 	route.POST("/search", h.Search)
+	route.POST("/search/tag", h.SearchTag)
+	route.DELETE("/:id/tag/:tag_id", h.RemoveTagFromRepo)
+	route.POST("/:id/tag", h.AddTagToRepo)
 }
 
 func (h *RepoHandler) Create(c echo.Context) error {
@@ -40,23 +42,10 @@ func (h *RepoHandler) Create(c echo.Context) error {
 	}
 	err := h.repoService.Create(item)
 	if err != nil {
+		logger.Error(err)
 		return c.JSON(errors.GetCodeFrom(err), domain.Response{Err: err.Error()})
 	}
 	return c.JSON(http.StatusCreated, domain.Response{Data: item})
-}
-
-func (h *RepoHandler) Update(c echo.Context) error {
-	var item domain.Repo
-	if err := handlers.BindAndValidate(c, &item); err != nil {
-		return err
-	}
-	item.ID = c.Param("id")
-	err := h.repoService.Update(item)
-	if err != nil {
-		log.Println(err)
-		return c.JSON(errors.GetCodeFrom(err), domain.Response{Err: err.Error()})
-	}
-	return c.JSON(http.StatusOK, domain.Response{Data: item})
 }
 
 func (h *RepoHandler) ReadOne(c echo.Context) error {
@@ -69,22 +58,38 @@ func (h *RepoHandler) ReadOne(c echo.Context) error {
 	return c.JSON(http.StatusOK, domain.Response{Data: found})
 }
 
-func (h *RepoHandler) Sync(c echo.Context) error {
-	repos, err := h.repoService.Sync()
+func (h *RepoHandler) GetTotalStarredRepositories(c echo.Context) error {
+	total, err := h.repoService.GetTotalStarredRepositories()
 	if err != nil {
 		logger.Error(err)
 		return c.JSON(errors.GetCodeFrom(err), domain.Response{Err: err.Error()})
 	}
-	return c.JSON(http.StatusOK, domain.Response{Data: repos})
+	return c.JSON(http.StatusOK, domain.Response{Data: total})
+}
+
+func (h *RepoHandler) Sync(c echo.Context) error {
+	items, total, err := h.repoService.Sync()
+	if err != nil {
+		logger.Error(err)
+		return c.JSON(errors.GetCodeFrom(err), domain.Response{Err: err.Error()})
+	}
+	logger.Info("Returning", len(items), "/", total, "repositories")
+	meta := domain.Meta{
+		Page:    1,
+		PerPage: 100,
+		Total:   int(total),
+	}
+	return c.JSON(http.StatusOK, domain.Response{Data: items, Meta: &meta})
 }
 
 func (h *RepoHandler) Search(c echo.Context) error {
 	var item filter.Request
-	if err := handlers.BindAndValidate(c, &item); err != nil {
+	if err := c.Bind(&item); err != nil {
 		return err
 	}
 	items, total, err := h.repoService.Search(item)
 	if err != nil {
+		logger.Error(err)
 		return c.JSON(errors.GetCodeFrom(err), domain.Response{Err: err.Error()})
 	}
 	meta := domain.Meta{
@@ -93,4 +98,51 @@ func (h *RepoHandler) Search(c echo.Context) error {
 		Total:   total,
 	}
 	return c.JSON(http.StatusOK, domain.Response{Data: items, Meta: &meta})
+}
+
+func (h *RepoHandler) SearchTag(c echo.Context) error {
+	var item filter.Request
+	if err := c.Bind(&item); err != nil {
+		return err
+	}
+	items, total, err := h.repoService.SearchTag(item)
+	if err != nil {
+		logger.Error(err)
+		return c.JSON(errors.GetCodeFrom(err), domain.Response{Err: err.Error()})
+	}
+	meta := domain.Meta{
+		Page:    item.Pagination.Page,
+		PerPage: item.Pagination.PerPage,
+		Total:   total,
+	}
+	return c.JSON(http.StatusOK, domain.Response{Data: items, Meta: &meta})
+}
+
+func (h *RepoHandler) RemoveTagFromRepo(c echo.Context) error {
+	repo := domain.Repo{
+		ID: c.Param("id"),
+	}
+	tag := domain.Tag{
+		ID: c.Param("tag_id"),
+	}
+	err := h.repoService.RemoveTagFromRepo(repo, tag)
+	if err != nil {
+		logger.Error(err)
+		return c.JSON(errors.GetCodeFrom(err), domain.Response{Err: err.Error()})
+	}
+	return c.JSON(http.StatusNoContent, "")
+}
+
+func (h *RepoHandler) AddTagToRepo(c echo.Context) error {
+	var item domain.Tag
+	if err := c.Bind(&item); err != nil {
+		return err
+	}
+	repo := domain.Repo{ID: c.Param("id")}
+	tag, err := h.repoService.AddTagToRepo(repo, item)
+	if err != nil {
+		logger.Error(err)
+		return c.JSON(errors.GetCodeFrom(err), domain.Response{Err: err.Error()})
+	}
+	return c.JSON(http.StatusOK, domain.Response{Data: tag})
 }

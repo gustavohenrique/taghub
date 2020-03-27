@@ -21,8 +21,8 @@ func Seed(ts *testing.T, name string, fn FN) {
 		databaseURL = ":memory:"
 	}
 	db := sqlite.New(sqlite.Config{URL: databaseURL})
-	executeSQL(db, "taghub.sql")
-	executeSQL(db, "_repos.sql")
+	executeSQL(db, "database.sql")
+	executeSQL(db, "_testdata.sql")
 	ts.Run(name, func(t *testing.T) {
 		fn(t, db)
 	})

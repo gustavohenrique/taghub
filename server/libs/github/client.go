@@ -10,8 +10,9 @@ import (
 )
 
 type GithubClient interface {
-	FetchAllStarredRepositories(all []Repository, after string) ([]Repository, error)
-	GetStarredRepositories(perPage int, after string) ([]Repository, error)
+	FetchAllStarredRepositories(all []Repository, after string) ([]Repository, int64, error)
+	GetStarredRepositories(perPage int, after string) ([]Repository, int64, error)
+	GetTotalStarredRepositories() (int64, error)
 }
 
 type GithubCli struct {
@@ -28,17 +29,37 @@ func NewGithubClient(token string) GithubClient {
 	return &GithubCli{httpClient}
 }
 
-func (s *GithubCli) FetchAllStarredRepositories(all []Repository, after string) ([]Repository, error) {
-	repos, err := s.GetStarredRepositories(100, after)
+func (s *GithubCli) FetchAllStarredRepositories(all []Repository, after string) ([]Repository, int64, error) {
+	repos, total, err := s.GetStarredRepositories(100, after)
 	if err != nil || len(repos) == 0 {
-		return all, err
+		return all, total, err
 	}
 	all = append(all, repos...)
 	last := repos[len(repos)-1]
 	return s.FetchAllStarredRepositories(all, last.Cursor)
 }
 
-func (s *GithubCli) GetStarredRepositories(perPage int, after string) ([]Repository, error) {
+func (s *GithubCli) GetTotalStarredRepositories() (int64, error) {
+	req := stringutils.TrimSpaceNewlineInString(`{"query": "query { 
+      viewer { 
+        starredRepositories(first:1) {
+          totalCount
+        }
+      }
+    }"}`)
+	body, statusCode, err := s.httpClient.POST("", []byte(req))
+	if hasFail(err, statusCode) {
+		return 0, fmt.Errorf("%d %s", statusCode, err)
+	}
+	var res Response
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		return 0, fmt.Errorf("Cannot unmarshal response %s", err)
+	}
+	return res.Data.Viewer.StarredRepositories.Total, err
+}
+
+func (s *GithubCli) GetStarredRepositories(perPage int, after string) ([]Repository, int64, error) {
 	var repos []Repository
 	params := fmt.Sprintf("first:%d", perPage)
 	if after != "" {
@@ -65,12 +86,12 @@ func (s *GithubCli) GetStarredRepositories(perPage int, after string) ([]Reposit
 	body, statusCode, err := s.httpClient.POST("", []byte(req))
 	if hasFail(err, statusCode) {
 		log.Println("req=", req, "res=", string(body))
-		return repos, fmt.Errorf("%d %s", statusCode, err)
+		return repos, 0, fmt.Errorf("%d %s", statusCode, err)
 	}
 	var res Response
 	err = json.Unmarshal(body, &res)
 	if err != nil {
-		return repos, fmt.Errorf("Cannot unmarshal response %s", err)
+		return repos, 0, fmt.Errorf("Cannot unmarshal response %s", err)
 	}
 	edges := res.Data.Viewer.StarredRepositories.Edges
 	for _, edge := range edges {
@@ -78,7 +99,7 @@ func (s *GithubCli) GetStarredRepositories(perPage int, after string) ([]Reposit
 		repo.Cursor = edge.Cursor
 		repos = append(repos, repo)
 	}
-	return repos, err
+	return repos, res.Data.Viewer.StarredRepositories.Total, err
 }
 
 func hasFail(err error, statusCode int) bool {

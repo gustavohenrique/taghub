@@ -44,7 +44,8 @@ import (
        "ordering": {
            "field": "name",
            "sort": "ASC"
-       }
+       },
+       "groupBy": "optional"
    }
 */
 
@@ -70,6 +71,7 @@ type Request struct {
 	Pagination Pagination `json:"pagination"`
 	Terms      []Term     `json:"terms"`
 	Ordering   Ordering   `json:"ordering"`
+	Grouping   string     `json:"grouping"`
 }
 
 type Pagination struct {
@@ -98,6 +100,7 @@ func Parse(raw string) (Request, error) {
 
 func (f Request) SQL() string {
 	sql := f.Where()
+	sql += f.GroupBy()
 	sql += f.OrderBy()
 	sql += f.Limit()
 	return sql
@@ -117,10 +120,6 @@ func (f Request) Where() string {
 				value := quoteString(removeDangerousWords(term.Value))
 				field := removeDangerousWords(term.Field)
 				str := field + " " + operator + " " + value
-				// Se operador for contains ou icontains, usa unaccent para strings contendo acentos
-				if strings.Contains(operator, operators["contains"]) {
-					str = "(" + str + " OR unaccent(" + field + ") " + operator + " " + value + ")"
-				}
 
 				if operator == operators["any"] {
 					str = value + " ILIKE " + operator + "(" + field + ")"
@@ -132,6 +131,14 @@ func (f Request) Where() string {
 		}
 	}
 	return sql
+}
+
+func (f Request) GroupBy() string {
+	grouping := f.Grouping
+	if grouping != "" {
+		return " GROUP BY " + grouping
+	}
+	return ""
 }
 
 func (f Request) OrderBy() string {

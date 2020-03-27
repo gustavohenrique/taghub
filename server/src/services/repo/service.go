@@ -11,6 +11,7 @@ import (
 
 type RepoService struct {
 	repoRepository domain.RepoRepository
+	tagRepository  domain.TagRepository
 	githubClient   github.GithubClient
 }
 
@@ -19,16 +20,21 @@ func NewRepoService(repositories *repository.RepositoryContainer) domain.RepoSer
 	githubClient := github.NewGithubClient(token)
 	return &RepoService{
 		repoRepository: repositories.RepoRepository,
+		tagRepository:  repositories.TagRepository,
 		githubClient:   githubClient,
 	}
 }
 
-func (s *RepoService) Sync() ([]domain.Repo, error) {
+func (s *RepoService) GetTotalStarredRepositories() (int64, error) {
+	return s.githubClient.GetTotalStarredRepositories()
+}
+
+func (s *RepoService) Sync() ([]domain.Repo, int64, error) {
 	var repos []domain.Repo
-	starredRepositories, err := s.githubClient.FetchAllStarredRepositories([]github.Repository{}, "")
+	starredRepositories, total, err := s.githubClient.FetchAllStarredRepositories([]github.Repository{}, "")
 	if err != nil {
 		logger.Error("Cannot sync with GitHub:", err)
-		return repos, err
+		return repos, 0, err
 	}
 	logger.Info("Got", len(starredRepositories), "starred repositories.")
 	for _, starred := range starredRepositories {
@@ -49,15 +55,11 @@ func (s *RepoService) Sync() ([]domain.Repo, error) {
 		}
 		repos = append(repos, repo)
 	}
-	return repos, err
+	return repos, total, err
 }
 
 func (s *RepoService) Create(item domain.Repo) error {
 	return s.repoRepository.Create(item)
-}
-
-func (s *RepoService) Update(item domain.Repo) error {
-	return s.repoRepository.Update(item)
 }
 
 func (s *RepoService) ReadOne(item domain.Repo) (domain.Repo, error) {
@@ -66,4 +68,24 @@ func (s *RepoService) ReadOne(item domain.Repo) (domain.Repo, error) {
 
 func (s *RepoService) Search(item filter.Request) ([]domain.Repo, int, error) {
 	return s.repoRepository.Search(item)
+}
+
+func (s *RepoService) SearchTag(item filter.Request) ([]domain.Tag, int, error) {
+	return s.repoRepository.SearchTag(item)
+}
+
+func (s *RepoService) AddTagToRepo(repo domain.Repo, tag domain.Tag) (domain.Tag, error) {
+	if tag.ID == "" {
+		created, err := s.tagRepository.Create(tag)
+		if err != nil {
+			logger.Error("Cannot create tag", tag.Name, err)
+			return tag, err
+		}
+		tag.ID = created.ID
+	}
+	return tag, s.repoRepository.AddTagToRepo(repo, tag)
+}
+
+func (s *RepoService) RemoveTagFromRepo(repo domain.Repo, tag domain.Tag) error {
+	return s.repoRepository.RemoveTagFromRepo(repo, tag)
 }

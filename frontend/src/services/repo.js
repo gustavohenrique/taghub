@@ -13,6 +13,22 @@ export default class {
     return resp.data.data
   }
 
+  async addTagToRepo (repo, tag) {
+    const req = {
+      id: repo.id,
+      tag: {
+        id: tag.id,
+        name: tag.name
+      }
+    }
+    const resp = await this.$http.post(`/api/repo/${repo.id}/tag`, req)
+    return resp.data.data
+  }
+
+  async removeTagFromRepo (repo, tag) {
+    await this.$http.delete(`/api/repo/${repo.id}/tag/${tag.id}`)
+  }
+
   async search (params) {
     const filter = {
       pagination: {
@@ -27,39 +43,49 @@ export default class {
     if (params.term) {
       filter.terms = [{
         id: '1',
-        field: 'full_name',
-        operator: 'icontains',
+        field: 'name',
+        operator: 'contains',
         value: `%${params.term}%`
       },
       {
         id: '2',
-        field: 'email',
-        operator: 'icontains',
-        value: `%${params.term}%`
-      },
-      {
-        id: '3',
-        field: 'mobile',
-        operator: 'contains',
-        value: `%${params.term}%`
-      },
-      {
-        id: '4',
-        field: 'cpf',
+        field: 'description',
         operator: 'contains',
         value: `%${params.term}%`
       }]
-      filter.condition = '$1 or $2 or $3 or $4'
+      filter.condition = '$1 or $2'
     }
-    const resp = await this.$http.post('/student/search', filter)
+    const resp = await this.$http.post('/api/repo/search', filter)
     return {
-      data: resp.data.data || [],
+      items: resp.data.data || [],
       total: resp.data.meta.total || 0
     }
   }
 
-  async readOne (id) {
-    const resp = await this.$http.get(`/student/${id}`)
-    return resp.data.data
+  async searchTag (term) {
+    const filter = {
+      pagination: {
+        per_page: 10,
+        page: 1
+      },
+      ordering: {
+        field: 'name',
+        sort: 'asc'
+      }
+    }
+    if (term) {
+      filter.terms = [{
+        id: '1',
+        field: 'name',
+        operator: 'contains',
+        value: `%${term}%`
+      }]
+      filter.condition = '$1'
+    }
+    const resp = await this.$http.post('/api/repo/search/tag', filter)
+    return {
+      items: resp.data.data || [],
+      total: resp.data.meta.total || 0
+    }
   }
 }
