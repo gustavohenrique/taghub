@@ -30,4 +30,4 @@ CREATE TABLE mapping (
   FOREIGN KEY(tag_id) REFERENCES tags(id)
 );
 
-CREATE INDEX idx_mapping ON mapping(repo_id, tag_id);
+CREATE UNIQUE INDEX idx_mapping ON mapping(repo_id, tag_id);

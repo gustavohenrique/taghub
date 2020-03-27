@@ -32,7 +32,7 @@ func (h *RepoHandler) AddRoutesTo(api *echo.Group) {
 	route.POST("/search", h.Search)
 	route.POST("/search/tag", h.SearchTag)
 	route.DELETE("/:id/tag/:tag_id", h.RemoveTagFromRepo)
-	route.POST("/:id/tag", h.AddTagToRepo)
+	route.POST("/:repo_id/tag", h.AddTagToRepo)
 }
 
 func (h *RepoHandler) Create(c echo.Context) error {
@@ -134,11 +134,11 @@ func (h *RepoHandler) RemoveTagFromRepo(c echo.Context) error {
 }
 
 func (h *RepoHandler) AddTagToRepo(c echo.Context) error {
+	repo := domain.Repo{ID: c.Param("repo_id")}
 	var item domain.Tag
 	if err := c.Bind(&item); err != nil {
 		return err
 	}
-	repo := domain.Repo{ID: c.Param("id")}
 	tag, err := h.repoService.AddTagToRepo(repo, item)
 	if err != nil {
 		logger.Error(err)

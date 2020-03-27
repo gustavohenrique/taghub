@@ -81,7 +81,7 @@ func (s *RepoService) AddTagToRepo(repo domain.Repo, tag domain.Tag) (domain.Tag
 			logger.Error("Cannot create tag", tag.Name, err)
 			return tag, err
 		}
-		tag.ID = created.ID
+		tag = created
 	}
 	return tag, s.repoRepository.AddTagToRepo(repo, tag)
 }
