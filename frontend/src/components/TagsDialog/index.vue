@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="visible" persistent>
+  <q-dialog v-model="visible">
     <q-card style="width: 500px">
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">{{ repo.name }}</div>
@@ -39,8 +39,19 @@ export default {
     },
     async addTagTo (tag) {
       try {
-        const savedTag = await this.$s.repo.addTagToRepo(this.repo, tag)
-        this.repo.tags.push(savedTag)
+        if (!tag || !tag.name) {
+          return
+        }
+        const { repo } = this
+        const savedTag = await this.$s.repo.addTagToRepo(repo, tag)
+        const tags = repo.tags.map(t => {
+          if (t.name === savedTag.name) {
+            return savedTag
+          }
+          return t
+        })
+        repo.tags = tags
+        this.repo = repo
       } catch (err) {
         this.$s.dialog.error(err)
       }

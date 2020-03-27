@@ -23,13 +23,16 @@
       :rows-per-page-options="[10, 30, 50, 0]"
       :pagination.sync="pagination"
       :loading="loading"
+      separator="cell"
       bordered
       flat
       row-key="id"
+      wrap-cells
       class="q-mt-lg"
     >
       <template slot="body" slot-scope="props" :props="props">
         <q-tr :props="props">
+          <q-td key="created_at" :props="props" width="110">{{ formatDate(props.row.created_at) }}</q-td>
           <q-td key="name" :props="props">{{ props.row.name }}</q-td>
           <q-td key="description" :props="props">{{ props.row.description }}</q-td>
           <q-td key="tags" :props="props" align="right">
@@ -44,7 +47,7 @@
               {{ tag.name }}
             </q-chip>
           </q-td>
-          <q-td key="actions" :props="props" width="50">
+          <q-td key="actions" :props="props" width="140">
             <q-btn
               flat
               round
@@ -67,7 +70,7 @@
         <tags-dialog
           :visible="dialog"
           :repo="selected"
-          @close="dialog = false"
+          @close="closeDialogToAddTag"
         />
       </template>
     </q-table>
@@ -75,10 +78,13 @@
 </template>
 
 <script>
+import { date } from 'quasar'
+
 export default {
   data () {
     return {
       columns: [
+        { name: 'created_at', label: 'Synced At', align: 'left', field: 'created_at', sortable: true },
         { name: 'name', label: 'Name', align: 'left', field: 'name', sortable: true },
         { name: 'description', label: 'Description', align: 'left' },
         { name: 'tags', label: 'Tags', align: 'right' },
@@ -94,15 +100,13 @@ export default {
         prevPage: 0,
         rowsPerPage: 10,
         rowsNumber: 10,
-        sortBy: 'name',
-        descending: false
+        sortBy: 'created_at',
+        descending: true
       }
     }
   },
   mounted () {
-    this.search({
-      pagination: this.pagination
-    })
+    this.search()
   },
   methods: {
     showDialogToAddTag (item) {
@@ -113,8 +117,17 @@ export default {
       }
       this.dialog = true
     },
+    closeDialogToAddTag () {
+      this.dialog = false
+      this.selected = {}
+      this.search()
+    },
     searchReposByTags (tags) {
       console.log('vou submter tags pra busscar:', tags)
+    },
+    formatDate (value) {
+      const dt = new Date(value)
+      return date.formatDate(dt, 'YYYY-MM-DD')
     },
     async removeTagFromRepo (item, tag) {
       try {
@@ -132,10 +145,10 @@ export default {
         this.$s.dialog.error(err)
       }
     },
-    async search ({ pagination }) {
+    async search (params) {
       this.loading = true
       try {
-        pagination = pagination || this.pagination
+        const pagination = params ? params.pagination : this.pagination
         const data = await this.$s.repo.search(pagination)
         this.items = data.items || []
         this.pagination = {

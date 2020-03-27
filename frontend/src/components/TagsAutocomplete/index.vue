@@ -83,25 +83,18 @@ export default {
       this.clear(this.selectedTags)
     },
     add (details) {
-      this.selectedTags.push(details.value)
-      this.$emit('added', details.value)
+      let tag = details.value
+      if (!tag.id) {
+        tag = { name: details.value }
+      }
+      this.selectedTags.push(tag)
+      this.$emit('added', tag)
     },
     createValue (val, done) {
       if (val.length === 0) {
         return
       }
-      const { selectedTags } = this
-      val.split(/[,;|]+/)
-        .map(v => v.trim())
-        .filter(v => v.length > 0)
-        .forEach(v => {
-          if (!selectedTags.some(i => i.name === v)) {
-            selectedTags.push({ name: v })
-          }
-        })
-
-      done('')
-      this.selectedTags = selectedTags
+      done(val)
     },
     search (val, update, abort) {
       if (val.length < 1) {

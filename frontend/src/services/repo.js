@@ -15,11 +15,8 @@ export default class {
 
   async addTagToRepo (repo, tag) {
     const req = {
-      id: repo.id,
-      tag: {
-        id: tag.id,
-        name: tag.name
-      }
+      id: tag.id,
+      name: tag.name
     }
     const resp = await this.$http.post(`/api/repo/${repo.id}/tag`, req)
     return resp.data.data
