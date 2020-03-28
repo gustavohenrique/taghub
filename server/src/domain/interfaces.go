@@ -9,11 +9,17 @@ type TagRepository interface {
 	ReadOne(item Tag) (Tag, error)
 	Search(req filter.Request) ([]Tag, int, error)
 	ReadAll() ([]Tag, error)
+	GetTotalReposByTag(item Tag) (int, error)
+    Remove(item Tag) error
+    Update(item Tag) error
 }
 
 type TagService interface {
 	Search(req filter.Request) ([]Tag, int, error)
 	ReadAll() ([]Tag, error)
+	GetTotalReposByTag(item Tag) (int, error)
+    Remove(item Tag) error
+    Update(item Tag) error
 }
 
 type RepoRepository interface {

@@ -28,6 +28,19 @@ func (r TagRepository) Create(item domain.Tag) (domain.Tag, error) {
 	return item, nil
 }
 
+func (r TagRepository) Update(item domain.Tag) error {
+	query := "UPDATE tags SET name = ? WHERE id = ?"
+	err := r.db.Exec(query,
+		item.Name,
+        item.ID,
+	)
+	if err != nil {
+		code := errors.Detect(err)
+		return errors.New(code, err.Error())
+	}
+	return nil
+}
+
 func (r TagRepository) ReadOne(item domain.Tag) (domain.Tag, error) {
 	query := "SELECT id, name FROM tags WHERE id = ? OR name = ? LIMIT 1"
 	var found domain.Tag
@@ -48,6 +61,27 @@ func (r TagRepository) ReadAll() ([]domain.Tag, error) {
 		return items, errors.New(code, err.Error())
 	}
 	return items, nil
+}
+
+func (r TagRepository) Remove(item domain.Tag) error {
+	query := "DELETE FROM tags WHERE id = ?"
+	err := r.db.Exec(query, item.ID)
+	if err != nil {
+		code := errors.Detect(err)
+		return errors.New(code, err.Error())
+	}
+	return nil
+}
+
+func (r TagRepository) GetTotalReposByTag(item domain.Tag) (int, error) {
+	query := "SELECT COUNT(*) FROM mapping WHERE tag_id = ?"
+    var total int
+	err := r.db.Get(query, &total, item.ID)
+	if err != nil {
+		code := errors.Detect(err)
+		return total, errors.New(code, err.Error())
+	}
+	return total, nil
 }
 
 func (r TagRepository) Search(filters filter.Request) ([]domain.Tag, int, error) {
