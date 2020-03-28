@@ -30,6 +30,7 @@ type RepoRepository interface {
 	GetTagByName(name string) (Tag, error)
 	RemoveTagFromRepo(repo Repo, tag Tag) error
 	AddTagToRepo(repo Repo, tag Tag) error
+    GetTotal() int
 }
 
 type RepoService interface {

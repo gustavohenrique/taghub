@@ -6,6 +6,7 @@ import (
 
 type AppConfig struct {
 	DatabaseURL         string `envconfig:"DATABASE_URL"`
+	ExportDir           string `envconfig:"EXPORT_DIR" default:"jsonfiles"`
 	LogDestination      string `envconfig:"LOG_DEST" default:"stdout"`
 	LogFormat           string `envconfig:"LOG_FORMAT" default:"text"`
 	LogLevel            string `envconfig:"LOG_LEVEL" default:"info"`

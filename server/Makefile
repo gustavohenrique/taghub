@@ -38,3 +38,6 @@ setup:
 	$(GO) get github.com/golang/mock/mockgen@latest
 	$(GO) get golang.org/x/tools/cmd/goimports
 	$(GO) get -u github.com/rakyll/gotest
+
+json:
+	@./build/json.sh $(DB_URL) $(PWD)/../web/src/statics/jsonfiles

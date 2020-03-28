@@ -30,61 +30,6 @@ func (r RepoRepository) ReadOne(item domain.Repo) (domain.Repo, error) {
 	return found, nil
 }
 
-func (r RepoRepository) SearchByTagsIDs(tags []string, filters filter.Request) ([]domain.Repo, int, error) {
-	var repos []domain.Repo
-	var total int
-
-	query := `SELECT COUNT(DISTINCT id) FROM repos JOIN mapping WHERE mapping.repo_id = repos.id AND mapping.tag_id IN ('%s')`
-	query = fmt.Sprintf(query, strings.Join(tags, "', '"))
-	err := r.db.Get(query, &total)
-	if err != nil {
-		code := errors.Detect(err)
-		return repos, total, errors.New(code, err.Error())
-	}
-
-	query = `SELECT repos.* FROM repos JOIN mapping WHERE mapping.repo_id = repos.id AND mapping.tag_id IN ('%s') GROUP BY repos.name %s %s`
-	query = fmt.Sprintf(query, strings.Join(tags, "', '"), filters.OrderBy(), filters.Limit())
-	err = r.db.QueryAll(query, &repos)
-	if err != nil {
-		code := errors.Detect(err)
-		return repos, total, errors.New(code, err.Error())
-	}
-
-	var items []domain.Repo
-	for _, item := range repos {
-		var tags []domain.Tag
-		r.db.QueryAll("SELECT id, name FROM tags JOIN mapping ON mapping.tag_id = tags.id WHERE mapping.repo_id = ?", &tags, item.ID)
-		item.Tags = tags
-		items = append(items, item)
-	}
-	return items, total, nil
-}
-
-func (r RepoRepository) Search(filters filter.Request) ([]domain.Repo, int, error) {
-	var items []domain.Repo
-	var total int
-	err := r.db.
-		Select().
-		From("repos").
-		Applying(filters).
-		WithTotal(&total).
-		ForEach(&domain.Repo{}, func(row interface{}) {
-			item := row.(*domain.Repo)
-			var tags []domain.Tag
-			err := r.db.QueryAll("SELECT id, name FROM tags JOIN mapping ON mapping.tag_id = tags.id WHERE mapping.repo_id = ?", &tags, item.ID)
-			if err != nil {
-				logger.Error(err)
-			}
-			item.Tags = tags
-			items = append(items, *item)
-		})
-	if err != nil {
-		code := errors.Detect(err)
-		return items, total, errors.New(code, err.Error())
-	}
-	return items, total, nil
-}
-
 func (r RepoRepository) Create(item domain.Repo) error {
 	query := `INSERT INTO repos (
         id,
@@ -119,6 +64,13 @@ func (r RepoRepository) GetTagByName(name string) (domain.Tag, error) {
 	return found, nil
 }
 
+func (r RepoRepository) GetTotal() int {
+	var total int
+	query := "SELECT COUNT(*) FROM repos"
+	r.db.Get(query, &total)
+	return total
+}
+
 func (r RepoRepository) AddTagToRepo(item domain.Repo, tag domain.Tag) error {
 	query := "INSERT INTO mapping (repo_id, tag_id) VALUES (?, ?)"
 	err := r.db.Exec(query,
@@ -143,4 +95,61 @@ func (r RepoRepository) RemoveTagFromRepo(item domain.Repo, tag domain.Tag) erro
 		return errors.New(code, err.Error())
 	}
 	return nil
+}
+
+func (r RepoRepository) SearchByTagsIDs(tags []string, filters filter.Request) ([]domain.Repo, int, error) {
+	var repos []domain.Repo
+	var total int
+
+	query := `SELECT COUNT(DISTINCT id) FROM repos JOIN mapping WHERE mapping.repo_id = repos.id AND mapping.tag_id IN ('%s')`
+	query = fmt.Sprintf(query, strings.Join(tags, "', '"))
+	err := r.db.Get(query, &total)
+	if err != nil {
+		code := errors.Detect(err)
+		return repos, total, errors.New(code, err.Error())
+	}
+
+	query = `SELECT repos.* FROM repos JOIN mapping WHERE mapping.repo_id = repos.id AND mapping.tag_id IN ('%s') GROUP BY repos.name %s %s`
+	query = fmt.Sprintf(query, strings.Join(tags, "', '"), filters.OrderBy(), filters.Limit())
+	err = r.db.QueryAll(query, &repos)
+	if err != nil {
+		code := errors.Detect(err)
+		return repos, total, errors.New(code, err.Error())
+	}
+
+	var items []domain.Repo
+	for _, item := range repos {
+		item.Tags = r.getTagsByRepoID(item.ID)
+		items = append(items, item)
+	}
+	return items, total, nil
+}
+
+func (r RepoRepository) Search(filters filter.Request) ([]domain.Repo, int, error) {
+	var items []domain.Repo
+	var total int
+	err := r.db.
+		Select().
+		From("repos").
+		Applying(filters).
+		WithTotal(&total).
+		ForEach(&domain.Repo{}, func(row interface{}) {
+			item := row.(*domain.Repo)
+			item.Tags = r.getTagsByRepoID(item.ID)
+			items = append(items, *item)
+		})
+	if err != nil {
+		code := errors.Detect(err)
+		return items, total, errors.New(code, err.Error())
+	}
+	return items, total, nil
+}
+
+func (r RepoRepository) getTagsByRepoID(id string) []domain.Tag {
+	var tags []domain.Tag
+	err := r.db.QueryAll("SELECT id, name FROM tags JOIN mapping ON mapping.tag_id = tags.id WHERE mapping.repo_id = ?", &tags, id)
+	if err != nil {
+		logger.Error(err)
+	}
+	return tags
 }
