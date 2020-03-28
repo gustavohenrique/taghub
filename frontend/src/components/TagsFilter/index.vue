@@ -17,6 +17,7 @@
       class="row q-gutter-md"
       v-if="show"
     >
+      <div v-if="!allTags || allTags.length === 0">No tags found.</div>
       <q-chip
         v-for="t in allTags"
         text-color="white"

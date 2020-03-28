@@ -55,7 +55,7 @@ export default {
         },
         {
           label: 'Tags',
-          route: { name: 'sync' }
+          route: { name: 'tags' }
         },
         {
           label: 'Synchronization',

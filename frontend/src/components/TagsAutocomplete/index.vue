@@ -108,7 +108,13 @@ export default {
       update(async () => {
         this.loading = true
         try {
-          const data = await this.$s.tag.search(val)
+          const data = await this.$s.tag.search({
+            term: val,
+            pagination: {
+              rowsPerPage: 10,
+              page: 1
+            }
+          })
           this.allTags = data.items || []
         } catch (err) {
           abort()

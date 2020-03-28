@@ -8,15 +8,29 @@ export default class {
     return resp.data.data
   }
 
-  async search (term) {
-    const filter = {
+  async getTotalReposByTag (tag) {
+    const resp = await this.$http.get(`/api/tag/${tag.id}/total`)
+    return resp.data.data
+  }
+
+  async update (tag) {
+    await this.$http.put(`/api/tag/${tag.id}`, tag)
+  }
+
+  async remove (tag) {
+    await this.$http.delete(`/api/tag/${tag.id}`)
+  }
+
+  async search (filter) {
+    const { term, pagination } = filter
+    const req = {
       pagination: {
-        per_page: 10,
-        page: 1
+        per_page: pagination.rowsPerPage || 10,
+        page: pagination.page || 1
       },
       ordering: {
-        field: 'name',
-        sort: 'asc'
+        field: pagination.sortBy || 'name',
+        sort: pagination.descending ? 'desc' : 'asc'
       }
     }
     if (term) {
@@ -28,7 +42,7 @@ export default class {
       }]
       filter.condition = '$1'
     }
-    const resp = await this.$http.post('/api/tag/search', filter)
+    const resp = await this.$http.post(`/api/tag/search?total_repos=${filter.total_repos}`, req)
     return {
       items: resp.data.data || [],
       total: resp.data.meta.total || 0
