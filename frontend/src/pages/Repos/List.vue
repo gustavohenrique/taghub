@@ -159,7 +159,11 @@ export default {
     filterByTags (tags) {
       this.items = []
       this.tags = tags
-      this.search()
+      const pagination = {
+        ...this.pagination,
+        page: 1
+      }
+      this.search({ pagination })
     },
     async removeTagFromRepo (item, tag) {
       try {

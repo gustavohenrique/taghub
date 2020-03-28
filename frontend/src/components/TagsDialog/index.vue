@@ -1,5 +1,8 @@
 <template>
-  <q-dialog v-model="visible">
+  <q-dialog
+    v-model="visible"
+    persistent
+  >
     <q-card style="width: 500px">
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">{{ repo.name }}</div>

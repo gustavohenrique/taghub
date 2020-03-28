@@ -34,13 +34,13 @@ export default class {
       }
     }
     if (term) {
-      filter.terms = [{
+      req.terms = [{
         id: '1',
         field: 'name',
         operator: 'contains',
         value: `%${term}%`
       }]
-      filter.condition = '$1'
+      req.condition = '$1'
     }
     const resp = await this.$http.post(`/api/tag/search?total_repos=${filter.total_repos}`, req)
     return {

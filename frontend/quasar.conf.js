@@ -85,7 +85,8 @@ module.exports = function (ctx) {
         'QBtnDropdown',
         'QOptionGroup',
         'QToolbar',
-        'QToolbarTitle'
+        'QToolbarTitle',
+        'QMenu'
       ],
 
       directives: [

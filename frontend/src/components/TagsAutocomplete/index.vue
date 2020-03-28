@@ -6,6 +6,7 @@
       use-input
       use-chips
       multiple
+      autofocus
       hide-dropdown-icon
       input-debounce="0"
       option-value="id"
@@ -109,6 +110,7 @@ export default {
         this.loading = true
         try {
           const data = await this.$s.tag.search({
+            total_repos: false,
             term: val,
             pagination: {
               rowsPerPage: 10,

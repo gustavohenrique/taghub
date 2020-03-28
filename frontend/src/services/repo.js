@@ -34,7 +34,7 @@ export default class {
         page: pagination.page
       },
       ordering: {
-        field: pagination.sortBy,
+        field: pagination.sortBy || 'created_at',
         sort: pagination.descending ? 'desc' : 'asc'
       },
       tags
@@ -54,7 +54,7 @@ export default class {
         page: pagination.page
       },
       ordering: {
-        field: pagination.sortBy,
+        field: pagination.sortBy || 'created_at',
         sort: pagination.descending ? 'desc' : 'asc'
       }
     }
