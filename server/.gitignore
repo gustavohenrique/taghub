@@ -1,4 +1,3 @@
-database.db
 *.env
 .makerc
 .DS_Store
