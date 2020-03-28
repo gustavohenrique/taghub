@@ -12,6 +12,7 @@
       option-label="name"
       new-value-mode="add-unique"
       @add="add"
+      @remove="remove"
       @new-value="createValue"
       @filter="search"
       :loading="loading"
@@ -90,6 +91,9 @@ export default {
       this.selectedTags.push(tag)
       this.$emit('added', tag)
     },
+    remove (details) {
+      this.$emit('removed', details.value)
+    },
     createValue (val, done) {
       if (val.length === 0) {
         return
@@ -104,7 +108,7 @@ export default {
       update(async () => {
         this.loading = true
         try {
-          const data = await this.$s.repo.searchTag(val)
+          const data = await this.$s.tag.search(val)
           this.allTags = data.items || []
         } catch (err) {
           abort()

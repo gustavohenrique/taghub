@@ -26,60 +26,39 @@ export default class {
     await this.$http.delete(`/api/repo/${repo.id}/tag/${tag.id}`)
   }
 
-  async search (params) {
-    const filter = {
+  async searchByTagsIds (filter) {
+    const { pagination, tags } = filter
+    const req = {
       pagination: {
-        per_page: params.rowsPerPage,
-        page: params.page
+        per_page: pagination.rowsPerPage,
+        page: pagination.page
       },
       ordering: {
-        field: params.sortBy,
-        sort: params.descending ? 'desc' : 'asc'
-      }
-    }
-    if (params.term) {
-      filter.terms = [{
-        id: '1',
-        field: 'name',
-        operator: 'contains',
-        value: `%${params.term}%`
+        field: pagination.sortBy,
+        sort: pagination.descending ? 'desc' : 'asc'
       },
-      {
-        id: '2',
-        field: 'description',
-        operator: 'contains',
-        value: `%${params.term}%`
-      }]
-      filter.condition = '$1 or $2'
+      tags
     }
-    const resp = await this.$http.post('/api/repo/search', filter)
+    const resp = await this.$http.post('/api/repo/tags/search', req)
     return {
       items: resp.data.data || [],
       total: resp.data.meta.total || 0
     }
   }
 
-  async searchTag (term) {
-    const filter = {
+  async search (filter) {
+    const { pagination } = filter
+    const req = {
       pagination: {
-        per_page: 10,
-        page: 1
+        per_page: pagination.rowsPerPage,
+        page: pagination.page
       },
       ordering: {
-        field: 'name',
-        sort: 'asc'
+        field: pagination.sortBy,
+        sort: pagination.descending ? 'desc' : 'asc'
       }
     }
-    if (term) {
-      filter.terms = [{
-        id: '1',
-        field: 'name',
-        operator: 'contains',
-        value: `%${term}%`
-      }]
-      filter.condition = '$1'
-    }
-    const resp = await this.$http.post('/api/repo/search/tag', filter)
+    const resp = await this.$http.post('/api/repo/search', req)
     return {
       items: resp.data.data || [],
       total: resp.data.meta.total || 0

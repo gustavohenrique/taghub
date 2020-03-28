@@ -18,7 +18,7 @@
         <q-btn
           flat
           color="primary"
-          label="Discard"
+          label="Cancel"
           @click="close"
         />
       </q-card-section>
@@ -29,10 +29,6 @@
 <script>
 export default {
   props: ['visible', 'repo'],
-  data () {
-    return {
-    }
-  },
   methods: {
     close () {
       this.$emit('close')
@@ -44,14 +40,7 @@ export default {
         }
         const { repo } = this
         const savedTag = await this.$s.repo.addTagToRepo(repo, tag)
-        const tags = repo.tags.map(t => {
-          if (t.name === savedTag.name) {
-            return savedTag
-          }
-          return t
-        })
-        repo.tags = tags
-        this.repo = repo
+        this.$emit('added-tag', savedTag)
       } catch (err) {
         this.$s.dialog.error(err)
       }
