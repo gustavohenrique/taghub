@@ -2,11 +2,13 @@ package repo
 
 import (
 	"fmt"
+	"strings"
+
 	"server/libs/errors"
 	"server/libs/filter"
+	"server/libs/logger"
 	"server/src/domain"
 	"server/src/sqlite"
-	"strings"
 )
 
 type RepoRepository struct {
@@ -69,7 +71,10 @@ func (r RepoRepository) Search(filters filter.Request) ([]domain.Repo, int, erro
 		ForEach(&domain.Repo{}, func(row interface{}) {
 			item := row.(*domain.Repo)
 			var tags []domain.Tag
-			r.db.QueryAll("SELECT id, name FROM tags JOIN mapping ON mapping.tag_id = tags.id WHERE mapping.repo_id = ?", &tags, item.ID)
+			err := r.db.QueryAll("SELECT id, name FROM tags JOIN mapping ON mapping.tag_id = tags.id WHERE mapping.repo_id = ?", &tags, item.ID)
+			if err != nil {
+				logger.Error(err)
+			}
 			item.Tags = tags
 			items = append(items, *item)
 		})

@@ -26,8 +26,8 @@ DROP TABLE IF EXISTS mapping;
 CREATE TABLE mapping (
   repo_id TEXT NOT NULL,
   tag_id INTEGER,
-  FOREIGN KEY(repo_id) REFERENCES repos(id),
-  FOREIGN KEY(tag_id) REFERENCES tags(id)
+  FOREIGN KEY(repo_id) REFERENCES repos(id) ON DELETE CASCADE,
+  FOREIGN KEY(tag_id) REFERENCES tags(id) ON DELETE CASCADE
 );
 
 CREATE UNIQUE INDEX idx_mapping ON mapping(repo_id, tag_id);
