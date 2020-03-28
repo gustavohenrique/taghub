@@ -3,7 +3,7 @@ include .makerc
 .PHONY: build mocks coverage
 
 DB_URL  := "database.db"
-TEST_DB_URL  := "/tmp/db.db"
+TEST_DB_URL  := "/tmp/test.db"
 GO := $(shell which go)
 BINARY := taghub
 

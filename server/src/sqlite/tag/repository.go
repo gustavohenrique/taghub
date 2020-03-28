@@ -32,7 +32,7 @@ func (r TagRepository) Update(item domain.Tag) error {
 	query := "UPDATE tags SET name = ? WHERE id = ?"
 	err := r.db.Exec(query,
 		item.Name,
-        item.ID,
+		item.ID,
 	)
 	if err != nil {
 		code := errors.Detect(err)
@@ -75,7 +75,7 @@ func (r TagRepository) Remove(item domain.Tag) error {
 
 func (r TagRepository) GetTotalReposByTag(item domain.Tag) (int, error) {
 	query := "SELECT COUNT(*) FROM mapping WHERE tag_id = ?"
-    var total int
+	var total int
 	err := r.db.Get(query, &total, item.ID)
 	if err != nil {
 		code := errors.Detect(err)

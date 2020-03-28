@@ -10,16 +10,16 @@ type TagRepository interface {
 	Search(req filter.Request) ([]Tag, int, error)
 	ReadAll() ([]Tag, error)
 	GetTotalReposByTag(item Tag) (int, error)
-    Remove(item Tag) error
-    Update(item Tag) error
+	Remove(item Tag) error
+	Update(item Tag) error
 }
 
 type TagService interface {
 	Search(req filter.Request) ([]Tag, int, error)
 	ReadAll() ([]Tag, error)
 	GetTotalReposByTag(item Tag) (int, error)
-    Remove(item Tag) error
-    Update(item Tag) error
+	Remove(item Tag) error
+	Update(item Tag) error
 }
 
 type RepoRepository interface {
@@ -30,7 +30,7 @@ type RepoRepository interface {
 	GetTagByName(name string) (Tag, error)
 	RemoveTagFromRepo(repo Repo, tag Tag) error
 	AddTagToRepo(repo Repo, tag Tag) error
-    GetTotal() int
+	GetTotal() int
 }
 
 type RepoService interface {
