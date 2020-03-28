@@ -1,7 +1,7 @@
 <template>
   <q-page class="q-pa-lg">
     <div class="text-h4 text-grey-8 q-mb-lg">
-      Repositories
+      {{ pagination.rowsNumber === 1 ? pagination.rowsNumber + ' repository' : pagination.rowsNumber + ' repositories' }}
     </div>
 
     <div class="q-pt-lg q-pb-lg">
@@ -95,6 +95,7 @@
 
 <script>
 import { date } from 'quasar'
+import constants from '../../constants'
 
 export default {
   data () {
@@ -141,6 +142,7 @@ export default {
       this.dialog = true
     },
     closeDialogToAddTag () {
+      this.$publish(constants.TAGS_FILTER_REFRESH)
       this.dialog = false
       this.selected = {}
       this.index = 0
@@ -155,7 +157,6 @@ export default {
       return date.formatDate(dt, 'YYYY-MM-DD')
     },
     filterByTags (tags) {
-      console.log('tags', tags)
       this.items = []
       this.tags = tags
       this.search()

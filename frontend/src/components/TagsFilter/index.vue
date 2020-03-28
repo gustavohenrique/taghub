@@ -32,6 +32,8 @@
 </template>
 
 <script>
+import constants from '../../constants'
+
 export default {
   data () {
     return {
@@ -40,8 +42,12 @@ export default {
       selectedIds: []
     }
   },
-  async created () {
-    this.allTags = await this.$s.tag.readAll()
+  created () {
+    this.readAll()
+    this.$subscribe(constants.TAGS_FILTER_REFRESH, this.readAll)
+  },
+  destroyed () {
+    this.$unsubscribe(constants.TAGS_FILTER_REFRESH)
   },
   watch: {
     selectedIds: {
@@ -52,6 +58,9 @@ export default {
     }
   },
   methods: {
+    async readAll () {
+      this.allTags = await this.$s.tag.readAll()
+    },
     getColorAccordingOf (tag) {
       if (this.isSelected(tag.id)) {
         return 'negative'
