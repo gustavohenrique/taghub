@@ -1,0 +1,8 @@
+[build]
+publish = "web/dist/spa"
+command = "cd web && npm i -g @quasar/cli && npm i && npm run build" 
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
