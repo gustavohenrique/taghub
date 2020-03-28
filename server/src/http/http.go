@@ -15,6 +15,7 @@ import (
 	"server/pkg"
 	"server/src/containers/service"
 	"server/src/handlers/repo"
+	"server/src/handlers/tag"
 )
 
 type HttpServer struct {
@@ -50,6 +51,7 @@ func (s *HttpServer) addRoutesTo(services *service.ServiceContainer) {
 	api.Use(VerifyAuth(s.services))
 
 	repo.NewRepoHandler(services).AddRoutesTo(api)
+	tag.NewTagHandler(services).AddRoutesTo(api)
 }
 
 func (s *HttpServer) setDefaultConfiguration() {

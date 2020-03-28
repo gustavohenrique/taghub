@@ -1,10 +1,12 @@
 package repo
 
 import (
+	"fmt"
 	"server/libs/errors"
 	"server/libs/filter"
 	"server/src/domain"
 	"server/src/sqlite"
+	"strings"
 )
 
 type RepoRepository struct {
@@ -15,10 +17,10 @@ func NewRepoRepository(db *sqlite.Database) domain.RepoRepository {
 	return RepoRepository{db}
 }
 
-func (repo RepoRepository) ReadOne(item domain.Repo) (domain.Repo, error) {
+func (r RepoRepository) ReadOne(item domain.Repo) (domain.Repo, error) {
 	var found domain.Repo
 	query := "SELECT * FROM repos WHERE id = ?"
-	err := repo.db.QueryRow(query, &found, item.ID)
+	err := r.db.QueryRow(query, &found, item.ID)
 	if err != nil {
 		code := errors.Detect(err)
 		return found, errors.New(code, err.Error())
@@ -26,10 +28,40 @@ func (repo RepoRepository) ReadOne(item domain.Repo) (domain.Repo, error) {
 	return found, nil
 }
 
-func (repo RepoRepository) Search(filters filter.Request) ([]domain.Repo, int, error) {
+func (r RepoRepository) SearchByTagsIDs(tags []string, filters filter.Request) ([]domain.Repo, int, error) {
+	var repos []domain.Repo
+	var total int
+
+	query := `SELECT COUNT(DISTINCT id) FROM repos JOIN mapping WHERE mapping.repo_id = repos.id AND mapping.tag_id IN ('%s')`
+	query = fmt.Sprintf(query, strings.Join(tags, "', '"))
+	err := r.db.Get(query, &total)
+	if err != nil {
+		code := errors.Detect(err)
+		return repos, total, errors.New(code, err.Error())
+	}
+
+	query = `SELECT repos.* FROM repos JOIN mapping WHERE mapping.repo_id = repos.id AND mapping.tag_id IN ('%s') GROUP BY repos.name %s %s`
+	query = fmt.Sprintf(query, strings.Join(tags, "', '"), filters.OrderBy(), filters.Limit())
+	err = r.db.QueryAll(query, &repos)
+	if err != nil {
+		code := errors.Detect(err)
+		return repos, total, errors.New(code, err.Error())
+	}
+
+	var items []domain.Repo
+	for _, item := range repos {
+		var tags []domain.Tag
+		r.db.QueryAll("SELECT id, name FROM tags JOIN mapping ON mapping.tag_id = tags.id WHERE mapping.repo_id = ?", &tags, item.ID)
+		item.Tags = tags
+		items = append(items, item)
+	}
+	return items, total, nil
+}
+
+func (r RepoRepository) Search(filters filter.Request) ([]domain.Repo, int, error) {
 	var items []domain.Repo
 	var total int
-	err := repo.db.
+	err := r.db.
 		Select().
 		From("repos").
 		Applying(filters).
@@ -37,7 +69,7 @@ func (repo RepoRepository) Search(filters filter.Request) ([]domain.Repo, int, e
 		ForEach(&domain.Repo{}, func(row interface{}) {
 			item := row.(*domain.Repo)
 			var tags []domain.Tag
-			repo.db.QueryAll("SELECT id, name FROM tags JOIN mapping ON mapping.tag_id = tags.id WHERE mapping.repo_id = ?", &tags, item.ID)
+			r.db.QueryAll("SELECT id, name FROM tags JOIN mapping ON mapping.tag_id = tags.id WHERE mapping.repo_id = ?", &tags, item.ID)
 			item.Tags = tags
 			items = append(items, *item)
 		})
@@ -48,21 +80,7 @@ func (repo RepoRepository) Search(filters filter.Request) ([]domain.Repo, int, e
 	return items, total, nil
 }
 
-func (repo RepoRepository) SearchTag(filters filter.Request) ([]domain.Tag, int, error) {
-	var items []domain.Tag
-	var total int
-	err := repo.db.Select().From("tags").Applying(filters).WithTotal(&total).ForEach(&domain.Tag{}, func(row interface{}) {
-		item := row.(*domain.Tag)
-		items = append(items, *item)
-	})
-	if err != nil {
-		code := errors.Detect(err)
-		return items, total, errors.New(code, err.Error())
-	}
-	return items, total, nil
-}
-
-func (repo RepoRepository) Create(item domain.Repo) error {
+func (r RepoRepository) Create(item domain.Repo) error {
 	query := `INSERT INTO repos (
         id,
         name,
@@ -71,7 +89,7 @@ func (repo RepoRepository) Create(item domain.Repo) error {
         homepage
     )
     VALUES (?, ?, ?, ?, ?)`
-	err := repo.db.Exec(query,
+	err := r.db.Exec(query,
 		item.ID,
 		item.Name,
 		item.Description,
@@ -85,10 +103,10 @@ func (repo RepoRepository) Create(item domain.Repo) error {
 	return nil
 }
 
-func (repo RepoRepository) GetTagByName(name string) (domain.Tag, error) {
+func (r RepoRepository) GetTagByName(name string) (domain.Tag, error) {
 	var found domain.Tag
 	query := "SELECT id, name FROM tags WHERE name = ?"
-	err := repo.db.QueryRow(query, &found, name)
+	err := r.db.QueryRow(query, &found, name)
 	if err != nil {
 		code := errors.Detect(err)
 		return found, errors.New(code, err.Error())
@@ -96,9 +114,9 @@ func (repo RepoRepository) GetTagByName(name string) (domain.Tag, error) {
 	return found, nil
 }
 
-func (repo RepoRepository) AddTagToRepo(item domain.Repo, tag domain.Tag) error {
+func (r RepoRepository) AddTagToRepo(item domain.Repo, tag domain.Tag) error {
 	query := "INSERT INTO mapping (repo_id, tag_id) VALUES (?, ?)"
-	err := repo.db.Exec(query,
+	err := r.db.Exec(query,
 		item.ID,
 		tag.ID,
 	)
@@ -109,9 +127,9 @@ func (repo RepoRepository) AddTagToRepo(item domain.Repo, tag domain.Tag) error 
 	return nil
 }
 
-func (repo RepoRepository) RemoveTagFromRepo(item domain.Repo, tag domain.Tag) error {
+func (r RepoRepository) RemoveTagFromRepo(item domain.Repo, tag domain.Tag) error {
 	query := "DELETE FROM mapping WHERE repo_id = (?) AND tag_id = (?)"
-	err := repo.db.Exec(query,
+	err := r.db.Exec(query,
 		item.ID,
 		tag.ID,
 	)

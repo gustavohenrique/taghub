@@ -41,6 +41,14 @@ func (db *Database) GetConnection() (*sqlx.DB, error) {
 	return db.connection, err
 }
 
+func (db *Database) Get(query string, found interface{}, args ...interface{}) error {
+	conn, err := db.GetConnection()
+	if err != nil {
+		return err
+	}
+	return conn.Get(found, query, args...)
+}
+
 func (db *Database) QueryRow(query string, found interface{}, args ...interface{}) error {
 	conn, err := db.GetConnection()
 	if err != nil {

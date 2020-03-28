@@ -30,7 +30,7 @@ func (h *RepoHandler) AddRoutesTo(api *echo.Group) {
 	route.GET("/sync", h.GetTotalStarredRepositories)
 	route.POST("/sync", h.Sync)
 	route.POST("/search", h.Search)
-	route.POST("/search/tag", h.SearchTag)
+	route.POST("/tags/search", h.SearchByTagsIDs)
 	route.DELETE("/:id/tag/:tag_id", h.RemoveTagFromRepo)
 	route.POST("/:repo_id/tag", h.AddTagToRepo)
 }
@@ -82,37 +82,41 @@ func (h *RepoHandler) Sync(c echo.Context) error {
 	return c.JSON(http.StatusOK, domain.Response{Data: items, Meta: &meta})
 }
 
-func (h *RepoHandler) Search(c echo.Context) error {
-	var item filter.Request
-	if err := c.Bind(&item); err != nil {
+func (h *RepoHandler) SearchByTagsIDs(c echo.Context) error {
+	type TagFilter struct {
+		filter.Request
+		Tags []string `json:"tags"`
+	}
+	var req TagFilter
+	if err := c.Bind(&req); err != nil {
 		return err
 	}
-	items, total, err := h.repoService.Search(item)
+	items, total, err := h.repoService.SearchByTagsIDs(req.Tags, req.Request)
 	if err != nil {
 		logger.Error(err)
 		return c.JSON(errors.GetCodeFrom(err), domain.Response{Err: err.Error()})
 	}
 	meta := domain.Meta{
-		Page:    item.Pagination.Page,
-		PerPage: item.Pagination.PerPage,
+		Page:    req.Pagination.Page,
+		PerPage: req.Pagination.PerPage,
 		Total:   total,
 	}
 	return c.JSON(http.StatusOK, domain.Response{Data: items, Meta: &meta})
 }
 
-func (h *RepoHandler) SearchTag(c echo.Context) error {
-	var item filter.Request
-	if err := c.Bind(&item); err != nil {
+func (h *RepoHandler) Search(c echo.Context) error {
+	var req filter.Request
+	if err := c.Bind(&req); err != nil {
 		return err
 	}
-	items, total, err := h.repoService.SearchTag(item)
+	items, total, err := h.repoService.Search(req)
 	if err != nil {
 		logger.Error(err)
 		return c.JSON(errors.GetCodeFrom(err), domain.Response{Err: err.Error()})
 	}
 	meta := domain.Meta{
-		Page:    item.Pagination.Page,
-		PerPage: item.Pagination.PerPage,
+		Page:    req.Pagination.Page,
+		PerPage: req.Pagination.PerPage,
 		Total:   total,
 	}
 	return c.JSON(http.StatusOK, domain.Response{Data: items, Meta: &meta})

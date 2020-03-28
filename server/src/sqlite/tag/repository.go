@@ -2,6 +2,7 @@ package tag
 
 import (
 	"server/libs/errors"
+	"server/libs/filter"
 	"server/src/domain"
 	"server/src/sqlite"
 )
@@ -14,9 +15,9 @@ func NewTagRepository(db *sqlite.Database) domain.TagRepository {
 	return TagRepository{db}
 }
 
-func (tag TagRepository) Create(item domain.Tag) (domain.Tag, error) {
+func (r TagRepository) Create(item domain.Tag) (domain.Tag, error) {
 	query := "INSERT INTO tags (name) VALUES (?)"
-	id, err := tag.db.ExecAndGetLastID(query,
+	id, err := r.db.ExecAndGetLastID(query,
 		item.Name,
 	)
 	if err != nil {
@@ -25,4 +26,40 @@ func (tag TagRepository) Create(item domain.Tag) (domain.Tag, error) {
 	}
 	item.ID = id
 	return item, nil
+}
+
+func (r TagRepository) ReadOne(item domain.Tag) (domain.Tag, error) {
+	query := "SELECT id, name FROM tags WHERE id = ? OR name = ? LIMIT 1"
+	var found domain.Tag
+	err := r.db.QueryRow(query, &found, item.ID, item.Name)
+	if err != nil {
+		code := errors.Detect(err)
+		return found, errors.New(code, err.Error())
+	}
+	return found, nil
+}
+
+func (r TagRepository) ReadAll() ([]domain.Tag, error) {
+	query := "SELECT id, name FROM tags ORDER BY name"
+	var items []domain.Tag
+	err := r.db.QueryAll(query, &items)
+	if err != nil {
+		code := errors.Detect(err)
+		return items, errors.New(code, err.Error())
+	}
+	return items, nil
+}
+
+func (r TagRepository) Search(filters filter.Request) ([]domain.Tag, int, error) {
+	var items []domain.Tag
+	var total int
+	err := r.db.Select().From("tags").Applying(filters).WithTotal(&total).ForEach(&domain.Tag{}, func(row interface{}) {
+		item := row.(*domain.Tag)
+		items = append(items, *item)
+	})
+	if err != nil {
+		code := errors.Detect(err)
+		return items, total, errors.New(code, err.Error())
+	}
+	return items, total, nil
 }

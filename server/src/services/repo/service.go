@@ -66,22 +66,25 @@ func (s *RepoService) ReadOne(item domain.Repo) (domain.Repo, error) {
 	return s.repoRepository.ReadOne(item)
 }
 
+func (s *RepoService) SearchByTagsIDs(tags []string, item filter.Request) ([]domain.Repo, int, error) {
+	return s.repoRepository.SearchByTagsIDs(tags, item)
+}
+
 func (s *RepoService) Search(item filter.Request) ([]domain.Repo, int, error) {
 	return s.repoRepository.Search(item)
 }
 
-func (s *RepoService) SearchTag(item filter.Request) ([]domain.Tag, int, error) {
-	return s.repoRepository.SearchTag(item)
-}
-
 func (s *RepoService) AddTagToRepo(repo domain.Repo, tag domain.Tag) (domain.Tag, error) {
 	if tag.ID == "" {
-		created, err := s.tagRepository.Create(tag)
+		item, err := s.tagRepository.Create(tag)
 		if err != nil {
-			logger.Error("Cannot create tag", tag.Name, err)
-			return tag, err
+			logger.Error("Cannot create tag", tag.Name, err, ". Finding it...")
+			item, err = s.tagRepository.ReadOne(tag)
+			if err != nil {
+				return tag, err
+			}
 		}
-		tag = created
+		tag = item
 	}
 	return tag, s.repoRepository.AddTagToRepo(repo, tag)
 }

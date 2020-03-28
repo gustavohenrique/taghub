@@ -50,3 +50,27 @@ func TestSearchRepoReturnAllItems(ts *testing.T) {
 		assert.Equal(t, len(first.Tags), 2, "")
 	})
 }
+
+func TestSearchRepoByTagsIDs(ts *testing.T) {
+	test.Seed(ts, "Should return items found by tags", func(t *testing.T, db *sqlite.Database) {
+		req := filter.Request{
+			Ordering: filter.Ordering{
+				Field: "created_at",
+				Sort:  "asc",
+			},
+			Pagination: filter.Pagination{
+				Page:    1,
+				PerPage: 1,
+			},
+		}
+		tags := []string{"1", "3"}
+		items, total, err := NewRepoRepository(db).SearchByTagsIDs(tags, req)
+		assert.Nil(t, err, "")
+		assert.Equal(t, len(items), 1, fmt.Sprintf("Got %d", len(items)))
+		assert.Equal(t, total, 2, fmt.Sprintf("Got total %d", total))
+
+		first := items[0]
+		assert.Equal(t, first.ID, "MDEwOlJlcG9zaXRvcnkzMDY1NDU0", "")
+		assert.Equal(t, len(first.Tags), 2, "")
+	})
+}
