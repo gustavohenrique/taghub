@@ -19,32 +19,23 @@
         class="col-2 q-mb-md"
       >
         <q-card-section>
-          <div class="row items-center">
-            <div class="text-headline text-grey">{{ formatDate(item.created_at) }}</div>
+          <div class="row items-end">
+            <div>
+              <div class="text-headline text-grey">{{ formatDate(item.created_at) }}</div>
+              <div class="text-h5">{{ item.name }}</div>
+            </div>
             <q-space />
             <q-btn
               flat
               round
               color="primary"
-              icon="fab fa-github-alt"
+              icon="open_in_new"
               type="a"
               target="__blank"
               :href="item.url"
             />
           </div>
-          <div class="row items-end">
-            <div class="text-h5 q-mt-sm q-mb-xs">{{ item.name }}</div>
-            <q-space />
-            <q-btn
-              color="grey"
-              round
-              flat
-              dense
-              :icon="isExpanded(item.id) ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
-              @click="toggleExpanded(item.id)"
-            />
-          </div>
-          <div v-show="isExpanded(item.id)" class="q-pt-xs">
+          <div class="q-pt-md">
             <div class="text-body2 text-primary">{{ item.description }}</div>
           </div>
         </q-card-section>
@@ -72,6 +63,14 @@
         @click="loadMore"
         :loading="loading"
         :disable="pagination.page >= pagination.maxPages"
+      />
+      <q-select
+        filled
+        label="Page"
+        :options="pages"
+        v-model="pagination.page"
+        style="width:100px"
+        class="q-ml-md"
       />
     </div>
   </q-page>
