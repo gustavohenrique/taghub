@@ -16,14 +16,25 @@
       flat
       row-key="id"
     >
-      <template v-slot:top-right>
-        <q-btn
-          color="primary"
-          icon="refresh"
-          flat
-          dense
-          @click="search"
-        />
+      <template v-slot:top-left>
+        <q-input
+          label="Search"
+          v-model="term"
+          style="width:500px"
+          @keyup.enter="search"
+          @keyup.esc="term = ''"
+          hint="Press Enter to search or Esc to clear"
+        >
+          <template v-slot:append>
+            <q-btn
+              color="primary"
+              icon="search"
+              flat
+              dense
+              @click="search"
+            />
+          </template>
+      </q-input>
       </template>
       <template slot="body" slot-scope="props" :props="props">
         <q-tr :props="props" @dblclick="edit(props.row)">
@@ -95,6 +106,7 @@ export default {
       selected: {},
       dialog: false,
       items: [],
+      term: '',
       loading: false,
       pagination: {
         page: 1,
@@ -145,7 +157,8 @@ export default {
       this.loading = true
       try {
         const pagination = params && params.pagination ? params.pagination : this.pagination
-        const filter = { pagination, total_repos: true }
+        const term = params && params.term ? params.term : this.term
+        const filter = { pagination, total_repos: true, term }
         const data = await this.$s.tag.search(filter)
         this.items = data.items
         this.pagination = {

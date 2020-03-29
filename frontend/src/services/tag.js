@@ -33,6 +33,7 @@ export default class {
         sort: pagination.descending ? 'desc' : 'asc'
       }
     }
+    console.log('term:', term)
     if (term) {
       req.terms = [{
         id: '1',
