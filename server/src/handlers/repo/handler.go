@@ -27,9 +27,10 @@ func (h *RepoHandler) AddRoutesTo(api *echo.Group) {
 	route := api.Group("/repo")
 	route.POST("", h.Create)
 	route.GET("/:id", h.ReadOne)
+	route.DELETE("/:id", h.Remove)
+	route.POST("/search", h.Search)
 	route.GET("/sync", h.GetTotalStarredRepositories)
 	route.POST("/sync", h.Sync)
-	route.POST("/search", h.Search)
 	route.POST("/tags/search", h.SearchByTagsIDs)
 	route.DELETE("/:id/tag/:tag_id", h.RemoveTagFromRepo)
 	route.POST("/:repo_id/tag", h.AddTagToRepo)
@@ -56,6 +57,18 @@ func (h *RepoHandler) ReadOne(c echo.Context) error {
 		return c.JSON(errors.GetCodeFrom(err), domain.Response{Err: err.Error()})
 	}
 	return c.JSON(http.StatusOK, domain.Response{Data: found})
+}
+
+func (h *RepoHandler) Remove(c echo.Context) error {
+	repo := domain.Repo{
+		ID: c.Param("id"),
+	}
+	err := h.repoService.Remove(repo)
+	if err != nil {
+		logger.Error(err)
+		return c.JSON(errors.GetCodeFrom(err), domain.Response{Err: err.Error()})
+	}
+	return c.JSON(http.StatusNoContent, "")
 }
 
 func (h *RepoHandler) GetTotalStarredRepositories(c echo.Context) error {

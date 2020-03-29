@@ -30,6 +30,18 @@ func (r RepoRepository) ReadOne(item domain.Repo) (domain.Repo, error) {
 	return found, nil
 }
 
+func (r RepoRepository) Remove(item domain.Repo) error {
+	query := "DELETE FROM repos WHERE id = (?)"
+	err := r.db.Exec(query,
+		item.ID,
+	)
+	if err != nil {
+		code := errors.Detect(err)
+		return errors.New(code, err.Error())
+	}
+	return nil
+}
+
 func (r RepoRepository) Create(item domain.Repo) error {
 	query := `INSERT INTO repos (
         id,
