@@ -14,8 +14,9 @@
       />
     </q-card-section>
     <q-card-section
-      class="row q-gutter-md"
       v-if="show"
+      class="row q-gutter-md scroll"
+      style="max-height: 30vh"
     >
       <div v-if="!allTags || allTags.length === 0">No tags found.</div>
       <q-chip

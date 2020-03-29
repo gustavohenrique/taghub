@@ -27,7 +27,7 @@
             <q-space />
             <q-btn
               flat
-              round
+              dense
               color="primary"
               icon="open_in_new"
               type="a"
