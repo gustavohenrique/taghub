@@ -40,4 +40,4 @@ setup:
 	$(GO) get -u github.com/rakyll/gotest
 
 json:
-	@./build/json.sh $(DB_URL) $(PWD)/../web/src/statics/jsonfiles
+	@./build/json.sh $(DB_URL) $(PWD)/../site/src/statics/jsonfiles
