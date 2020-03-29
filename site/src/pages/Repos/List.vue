@@ -19,7 +19,7 @@
         class="col-2 q-mb-md"
       >
         <q-card-section>
-          <div class="row items-end">
+          <div class="row items-center">
             <div>
               <div class="text-headline text-grey">{{ formatDate(item.created_at) }}</div>
               <div class="text-h5">{{ item.name }}</div>
