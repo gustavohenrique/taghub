@@ -3,10 +3,10 @@
   "version": "0.0.1",
   "description": "Get starred repositories from GitHub",
   "productName": "TagHub",
-  "cordovaId": "org.cordova.quasar.app",
+  "cordovaId": "com.gustavohenrique.taghub",
   "capacitorId": "",
   "author": "Gustavo Henrique <gustavo@gustavohenrique.net>",
-  "private": true,
+  "private": false,
   "scripts": {
     "local": "quasar dev",
     "serve": "quasar dev",

@@ -13,7 +13,7 @@
 
         <q-space />
 
-        <div class="gt-md q-pl-sm q-gutter-sm row items-center no-wrap">
+        <div class="q-pl-sm q-gutter-sm row items-center no-wrap">
           <q-btn
             round
             dense
