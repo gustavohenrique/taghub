@@ -19,8 +19,11 @@
         class="col-2 q-mb-md"
       >
         <q-card-section>
-          <div class="row items-center">
-            <div class="text-headline text-grey">{{ formatDate(item.created_at) }}</div>
+          <div class="row items-end">
+            <div>
+              <div class="text-headline text-grey">{{ formatDate(item.created_at) }}</div>
+              <div class="text-h5">{{ item.name }}</div>
+            </div>
             <q-space />
             <q-btn
               flat
@@ -32,26 +35,22 @@
             <q-btn
               flat
               round
-              color="primary"
-              icon="fab fa-github-alt"
+              color="grey"
+              icon="open_in_new"
               type="a"
               target="__blank"
               :href="item.url"
             />
-          </div>
-          <div class="row items-end">
-            <div class="text-h5 q-mt-sm q-mb-xs">{{ item.name }}</div>
-            <q-space />
             <q-btn
-              color="grey"
-              round
               flat
-              dense
-              :icon="isExpanded(item.id) ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
-              @click="toggleExpanded(item.id)"
+              round
+              color="negative"
+              icon="delete_forever"
+              class="q-ml-md"
+              @click="remove(item)"
             />
           </div>
-          <div v-show="isExpanded(item.id)" class="q-pt-xs">
+          <div class="q-pt-md">
             <div class="text-body2 text-primary">{{ item.description }}</div>
           </div>
         </q-card-section>
@@ -82,6 +81,15 @@
         :loading="loading"
         :disable="pagination.page >= pagination.maxPages"
       />
+      <q-select
+        filled
+        label="Page"
+        :options="pages"
+        v-model="pagination.page"
+        style="width:100px"
+        class="q-ml-md"
+      />
+
     </div>
 
     <tags-dialog
@@ -121,17 +129,16 @@ export default {
   mounted () {
     this.search()
   },
-  methods: {
-    isExpanded (id) {
-      return this.expandedId === id
-    },
-    toggleExpanded (id) {
-      if (this.isExpanded(id)) {
-        this.expandedId = ''
-      } else {
-        this.expandedId = id
+  computed: {
+    pages () {
+      const list = []
+      for (let i = 1; i <= this.pagination.maxPages; i++) {
+        list.push(i)
       }
-    },
+      return list
+    }
+  },
+  methods: {
     showDialogToAddTag (item, index) {
       const tags = item.tags ? [...item.tags] : []
       this.selected = {

@@ -26,6 +26,10 @@ export default class {
     await this.$http.delete(`/api/repo/${repo.id}/tag/${tag.id}`)
   }
 
+  async remove (repo) {
+    await this.$http.delete(`/api/repo/${repo.id}`)
+  }
+
   async searchByTagsIds (filter) {
     const { pagination, tags } = filter
     const req = {
