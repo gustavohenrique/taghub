@@ -25,14 +25,20 @@ func main() {
 		URL: config.DatabaseURL,
 	})
 	db.Connect()
-    fmt.Println(config.DatabaseURL)
+	fmt.Println(config.DatabaseURL)
 
 	repositories := repository.NewRepositoryContainer(db)
 	tagRepository := repositories.TagRepository
-	tags, err := tagRepository.ReadAll()
+	items, err := tagRepository.ReadAll()
 	if err != nil {
 		logger.Error(err)
 		return
+	}
+	var tags []domain.Tag
+	for _, tag := range items {
+		total, _ := tagRepository.GetTotalReposByTag(tag)
+		tag.TotalRepos = total
+		tags = append(tags, tag)
 	}
 	filesave("tags.json", tags)
 
@@ -54,21 +60,21 @@ func main() {
 			logger.Error(err)
 			return
 		}
-        resp := domain.Response{
-            Data: repos,
-            Meta: &domain.Meta{
-                Page: 1,
-                PerPage: totalRepos,
-                Total: len(repos),
-            },
-        }
+		resp := domain.Response{
+			Data: repos,
+			Meta: &domain.Meta{
+				Page:    1,
+				PerPage: totalRepos,
+				Total:   len(repos),
+			},
+		}
 		filesave("tags/"+tag.ID+".json", resp)
 	}
 
 	perPage := 10
-    filters.Pagination.PerPage = perPage
+	filters.Pagination.PerPage = perPage
 	maxPage := totalRepos / perPage
-    fmt.Println(perPage, "of", maxPage, "/", totalRepos)
+	fmt.Println(perPage, "of", maxPage, "/", totalRepos)
 	for page := 1; page < maxPage; page++ {
 		filters.Pagination.Page = page
 		repos, _, err := repoRepository.Search(filters)
@@ -77,14 +83,14 @@ func main() {
 			return
 		}
 		filename := fmt.Sprintf("repos/%d.json", page)
-        resp := domain.Response{
-            Data: repos,
-            Meta: &domain.Meta{
-                Page: page,
-                PerPage: perPage,
-                Total: totalRepos,
-            },
-        }
+		resp := domain.Response{
+			Data: repos,
+			Meta: &domain.Meta{
+				Page:    page,
+				PerPage: perPage,
+				Total:   totalRepos,
+			},
+		}
 		filesave(filename, resp)
 	}
 
