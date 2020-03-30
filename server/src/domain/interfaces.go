@@ -25,7 +25,7 @@ type TagService interface {
 type RepoRepository interface {
 	Create(item Repo) error
 	ReadOne(item Repo) (Repo, error)
-    Remove(item Repo) error
+	Remove(item Repo) error
 	Search(req filter.Request) ([]Repo, int, error)
 	SearchByTagsIDs(tags []string, filters filter.Request) ([]Repo, int, error)
 	GetTagByName(name string) (Tag, error)
@@ -37,7 +37,7 @@ type RepoRepository interface {
 type RepoService interface {
 	Create(item Repo) error
 	ReadOne(item Repo) (Repo, error)
-    Remove(item Repo) error
+	Remove(item Repo) error
 	Search(req filter.Request) ([]Repo, int, error)
 	SearchByTagsIDs(tags []string, filters filter.Request) ([]Repo, int, error)
 	GetTotalStarredRepositories() (int64, error)
