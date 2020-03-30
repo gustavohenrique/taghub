@@ -23,11 +23,15 @@
         v-for="t in allTags"
         text-color="white"
         clickable
+        class="q-pa-md"
         :key="t.id"
         :color="getColorAccordingOf(t)"
         @click="toggleSelectTag(t)"
       >
         {{ t.name }}
+        <q-badge color="primary" transparent floating>
+          {{ t.total_repos }}
+        </q-badge>
       </q-chip>
     </q-card-section>
     <q-card-section
