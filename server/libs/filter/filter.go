@@ -153,9 +153,6 @@ func (f Request) GetPerPage() int {
 	if f.Pagination.PerPage == 0 {
 		return 10
 	}
-	if f.Pagination.PerPage > 50 {
-		return 50
-	}
 	return f.Pagination.PerPage
 }
 

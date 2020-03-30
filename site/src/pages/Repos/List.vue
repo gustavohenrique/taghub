@@ -19,7 +19,7 @@
         class="col-2 q-mb-md"
       >
         <q-card-section>
-          <div class="row items-center">
+          <div class="row items-end">
             <div>
               <div class="text-headline text-grey">{{ formatDate(item.created_at) }}</div>
               <div class="text-h5">{{ item.name }}</div>
@@ -124,9 +124,9 @@ export default {
       this.loading = true
       try {
         const pagination = params && params.pagination ? params.pagination : this.pagination
-        let data = []
         if (this.tags && this.tags.length > 0) {
-          this.tags.forEach(async tagId => {
+          let items = []
+          for (const tagId of this.tags) {
             const result = await this.$s.repo.searchByTag(tagId)
             const unique = []
             result.items.map(i => {
@@ -135,18 +135,23 @@ export default {
                 unique.push(i)
               }
             })
-            this.items = this.items.concat(unique)
-            this.pagination.rowsNumber = this.items.length
-          })
+            items = items.concat(unique)
+          }
+          this.items = items
+          this.pagination = {
+            ...this.pagination,
+            maxPages: 1,
+            rowsNumber: items.length
+          }
         } else {
-          data = await this.$s.repo.search({ pagination })
+          const data = await this.$s.repo.search({ pagination })
           this.items = this.items.concat(data.items)
-        }
-        const maxPages = Math.ceil(data.total / 10)
-        this.pagination = {
-          ...pagination,
-          maxPages,
-          rowsNumber: data.total
+          const maxPages = Math.ceil(data.total / 10)
+          this.pagination = {
+            ...pagination,
+            maxPages,
+            rowsNumber: data.total
+          }
         }
       } catch (err) {
         this.$s.dialog.error(err)
