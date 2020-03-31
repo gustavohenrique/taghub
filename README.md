@@ -1,21 +1,142 @@
-<a href="https://taghub.netlify.com/">
-    <img src="resources/logo-black.svg" alt="TagHub" title="TagHub" align="right" height="60" />
-</a>
+[![TagHub](resources/logo.png)](https://taghub.netlify.com)
+-----
 
-#TagHub [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=More%20than%201000%20starred%20repositories%20organized%20by%20tags&url=https://taghub.netlify.com&hashtags=git,github,golang,vuejs,quasar)
-
-======
-
-[![forthebadge](https://forthebadge.com/images/badges/made-with-go.svg)](https://forthebadge.com)
-[![forthebadge](https://forthebadge.com/images/badges/made-with-vue.svg)](https://forthebadge.com)
-[![forthebadge](https://forthebadge.com/images/badges/contains-technical-debt.svg)](https://forthebadge.com)
+[![forthebadge](https://forthebadge.com/images/badges/made-with-go.svg)](https://golang.org)
+[![forthebadge](https://forthebadge.com/images/badges/made-with-vue.svg)](https://quasar.dev)
+[![forthebadge](https://forthebadge.com/images/badges/contains-technical-debt.svg)]()
 
 [![Build Status](https://travis-ci.com/gustavohenrique/taghub.svg?branch=master)](https://travis-ci.com/gustavohenrique/taghub)
 [![Coverage Status](https://coveralls.io/repos/github/gustavohenrique/taghub/badge.svg?branch=master)](https://coveralls.io/github/gustavohenrique/taghub?branch=master)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=CLK3RJCCUNSR2&currency_code=USD&source=url)
 
+[![demo](resources/demo.gif)]()
+---
+
 TagHub get all repositories that I starred in GitHub since 2009 and allow me to add tags for them.
 
-[![demo](resources/demo.gif)]()
+## Table of content
 
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+- [Architecture](#architecture)
+- [Contrib](#contrib)
+- [License](#license)
+
+## Getting Started
+
+First, ensure that you have Go >= 1.14, NodeJS >= 10.16 and make utility.
+Then, create a [GitHub Personal Token](https://github.com/settings/tokens/new) and
+add the token in `.makerc` file like this:
+
+```sh
+cd backend
+echo "GITHUB_PERSONAL_TOKEN=69xyo22bc52rt3v8fx721b9d6b68092abacb123b" > .makerc
+```
+
+## Usage
+
+Running the back-end:
+
+```sh
+cd backend
+make run
+make json  # create static JSON files used by site
+```
+
+Open another terminal instance, install the Quasar Framework and run the front-end:
+
+```sh
+cd frontend
+npm i -g @quasar/cli
+npm run serve
+```
+
+Now, you can open the front-end:
+
+```sh
+open http://localhost:15234  # or xdg-open in Linux systems
+```
+
+## Architecture
+
+There are 3 applications inside this mono repository:
+
+- **backend**: Rest API written in Go.
+- **frontend**: Admin interface using VueJS + Quasar Framework to manage tags and repositories.
+- **site**: Static site that fetchs JSON files instead to Rest API.
+
+### Backend
+
+#### Directories
+
+```
+.
+├── build                # automation scripts
+├── libs                 # private libs
+│   ├── configuration    # config based on environment variables
+│   ├── errors           # add custom code used by HTTP response
+│   ├── filter           # mount an SQL Where statement based in some rules sent in POST request
+│   ├── httpclient       # FastHTTP implementation used by the GitHub client
+│   ├── logger           # Logrus implementation
+│   ├── stringutils      # some code to deal with strings
+│   └── testutils        # help to write tests
+├── pkg                  # store the application version according of the branch name
+├── sql                  # database schema and initial data used in tests
+└── src                  # the application source code
+    ├── containers       # containers used for dependency injection
+    ├── domain           # structs and interfaces
+    ├── handlers         # routes and endpoints using Echo Framework
+    ├── http             # HTTP server
+    ├── sqlite           # run SQL queries
+    └── services         # business logic and data transformation
+```
+
+#### Layers
+
+- **handlers**: Rest API, the application's entrypoint, receive, validate and convert requests to structs. It looks like a orchestrator, forwarding the data to the service layer.
+- **services**: Apply business roles and prepare the data before to send to the repository layer.
+- **repositories**: Consume the SQLite database.
+
+### Frontend
+
+```
+.
+└── src
+    ├── assets           # files compiled by Webpack
+    ├── boot             # register components and libs like Axios
+    ├── components       # Vue components
+    ├── css              # custom CSS rules
+    ├── layouts          # the top-level components
+    ├── pages            # components rendered by routes
+    ├── router           # mapping routes to pages
+    ├── services         # get and send data to back-end
+    └── statics          # images, favicon etc.
+```
+
+### Site
+
+```
+.
+└── src
+    ├── assets
+    ├── boot
+    ├── components
+    ├── css
+    ├── layouts
+    ├── pages
+    ├── router
+    ├── services
+    └── statics
+        └── jsonfiles    # several JSON files generated by make json command
+```
+
+## Contrib
+
+1. Open an issue asking for your new feature or bug fix.
+2. Fork this repo and send a Pull Request.
+3. Please don't be lazy as I and write some tests for you code.
+
+## License
+
+Apache-2.0

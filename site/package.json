@@ -41,5 +41,6 @@
   ],
   "resolutions": {
     "@babel/parser": "7.7.5"
-  }
+  },
+  "license": "Apache-2.0"
 }

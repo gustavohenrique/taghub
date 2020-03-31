@@ -11,7 +11,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
-	"server/libs/httpvalidator"
 	"server/pkg"
 	"server/src/containers/service"
 	"server/src/handlers/repo"
@@ -56,7 +55,6 @@ func (s *HttpServer) addRoutesTo(services *service.ServiceContainer) {
 
 func (s *HttpServer) setDefaultConfiguration() {
 	e := s.server
-	e.Validator = httpvalidator.New()
 	e.HideBanner = true
 	e.Debug = true
 }
