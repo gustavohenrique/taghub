@@ -14,4 +14,4 @@ before_install:
   - go get github.com/mattn/goveralls
 
 script:
-  - cd server && make tests
+  - cd backend && make tests
