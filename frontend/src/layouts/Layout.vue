@@ -15,7 +15,7 @@
         <q-space />
 
         <div
-          class="gt-md q-ml-xs q-gutter-md text-body2 text-weight-bold row items-center no-wrap"
+          class="gt-xs q-ml-xs q-gutter-md text-body2 text-weight-bold row items-center no-wrap"
         >
           <q-btn
             v-for="m in menus"
@@ -30,11 +30,11 @@
           />
         </div>
 
-        <div class="gt-md q-pl-sm q-gutter-sm row items-center no-wrap">
+        <div class="gt-sm q-pl-sm q-gutter-sm row items-center no-wrap">
           <q-btn round dense flat :ripple="false" :icon="fabGithub" size="19px" color="white" no-caps />
         </div>
 
-        <div class="lt-md">
+        <div class="lt-sm">
           <q-btn
             flat
             dense
