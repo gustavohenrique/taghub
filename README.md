@@ -1,4 +1,4 @@
-[![TagHub](resources/logo.png)](https://taghub.netlify.com)
+[![TagHub](resources/logo.png)](https://taghub.gustavohenrique.com)
 -----
 
 [![forthebadge](https://forthebadge.com/images/badges/made-with-go.svg)](https://golang.org)
@@ -10,10 +10,11 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=CLK3RJCCUNSR2&currency_code=USD&source=url)
 
-[![demo](resources/demo.gif)]()
----
+[![demo](resources/demo.gif)](https://taghub.gustavohenrique.com)
 
-TagHub get all repositories that I starred in GitHub since 2009 and allow me to add tags for them.
+# TagHub
+
+TagHub gets all repositories that I starred in GitHub since 2009 and allows me to add tags for them.
 
 ## Table of content
 
@@ -41,7 +42,6 @@ Running the back-end:
 ```sh
 cd backend
 make run
-make json  # create static JSON files used by site
 ```
 
 Open another terminal instance, install the Quasar Framework and run the front-end:
@@ -58,6 +58,17 @@ Now, you can open the front-end:
 open http://localhost:15234  # or xdg-open in Linux systems
 ```
 
+Also, you can generate a static version and deploy it to GitHub Pages, Netlify, AWS S3 etc.
+
+```sh
+cd backend
+make json
+cd ../site
+npm run build
+cd dist/spa
+open index.html
+```
+
 ## Architecture
 
 There are 3 applications inside this mono repository:
@@ -70,14 +81,16 @@ There are 3 applications inside this mono repository:
 
 #### Directories
 
-```
+```sh
 .
 ├── build                # automation scripts
+├── cmd                  # exports repos and tags from database to JSON files
 ├── libs                 # private libs
 │   ├── configuration    # config based on environment variables
 │   ├── errors           # add custom code used by HTTP response
 │   ├── filter           # mount an SQL Where statement based in some rules sent in POST request
 │   ├── httpclient       # FastHTTP implementation used by the GitHub client
+│   ├── github           # get starred repos from GitHub using v4 API as Rest client instead of GraphQL
 │   ├── logger           # Logrus implementation
 │   ├── stringutils      # some code to deal with strings
 │   └── testutils        # help to write tests
@@ -100,7 +113,7 @@ There are 3 applications inside this mono repository:
 
 ### Frontend
 
-```
+```sh
 .
 └── src
     ├── assets           # files compiled by Webpack
@@ -116,7 +129,7 @@ There are 3 applications inside this mono repository:
 
 ### Site
 
-```
+```sh
 .
 └── src
     ├── assets
