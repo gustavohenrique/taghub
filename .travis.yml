@@ -1,0 +1,17 @@
+language: go
+go:
+  - 1.14
+
+env: GO111MODULE=on
+
+git:
+  depth: 1
+
+notifications:
+  email: false
+
+before_install:
+  - go get github.com/mattn/goveralls
+
+script:
+  - cd server && make tests

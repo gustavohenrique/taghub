@@ -1,4 +1,4 @@
-include .makerc
+-include .makerc
 
 .PHONY: build mocks coverage
 

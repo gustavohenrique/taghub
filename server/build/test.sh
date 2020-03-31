@@ -16,7 +16,7 @@ fi
 echo "PASS"
 echo
 
-if [ "${CIRCLECI}" != "true" ]; then
+if [[ "${CIRCLECI}" != "true" ] && [ "${CI}" != "true" ]]; then
     echo -n "Checking go vet: "
     TARGETS="./src/... ./libs/..."
     ERRS=$(go vet ${TARGETS} 2>&1 || true)
@@ -32,11 +32,12 @@ fi
 
 echo -n "Running tests: "
 export DATABASE_URL=${1}
-if [ "${CIRCLECI}" == "true" ]; then
-    go test -v -p 1 -coverprofile=coverage.txt -failfast ./src/...
+if [[ "${CIRCLECI}" == "true" ] || [ "${CI}" == "true" ]]; then
+    go test -v -p 1 -covermode=count -coverprofile=coverage.out -failfast ./src/...
+    goveralls -coverprofile=coverage.out -service=travis-ci
 else
-    gotest -v -failfast -p 1 -coverprofile=coverage.txt ./src/...
+    gotest -v -failfast -p 1 -coverprofile=coverage.out ./src/...
+    go tool cover -html ./coverage.out -o coverage.html
 fi
-go tool cover -html ./coverage.txt -o coverage.html
 echo "PASS"
 echo
