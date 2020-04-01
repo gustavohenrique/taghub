@@ -127,14 +127,18 @@ module.exports = function (ctx) {
     pwa: {
       // workboxPluginMode: 'InjectManifest',
       // workboxOptions: {}, // only for NON InjectManifest
+      workboxOptions: {
+        skipWaiting: true,
+        clientsClaim: true
+      },
       manifest: {
-        // name: 'Quasar App',
-        // short_name: 'Quasar App',
-        // description: 'A Quasar Framework app',
+        name: 'TagHub',
+        short_name: 'TagHub',
+        description: 'All repositories that I starred in GitHub since 2009 organized by tags',
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#ffffff',
-        theme_color: '#027be3',
+        theme_color: '#434343',
         icons: [
           {
             'src': 'statics/icons/icon-128x128.png',

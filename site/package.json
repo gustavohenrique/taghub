@@ -10,7 +10,7 @@
   "scripts": {
     "local": "quasar dev",
     "serve": "quasar dev",
-    "build": "quasar build",
+    "build": "quasar build -m pwa",
     "lint": "eslint --ext .js,.vue src",
     "test": ""
   },

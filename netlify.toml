@@ -1,5 +1,5 @@
 [build]
-publish = "site/dist/spa"
+publish = "site/dist/pwa"
 command = "cd site && npm i -g @quasar/cli && npm i && npm run build" 
 
 [[redirects]]
