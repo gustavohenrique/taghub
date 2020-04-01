@@ -1,55 +1,64 @@
 <template>
-  <q-card
-    flat
-    style="background:#efefef"
+  <q-dialog
+    v-model="visible"
+    full-height
+    full-width
   >
-    <q-card-section>
-      <q-btn
-        flat
-        dense
-        color="grey-8"
-        label="Filter by tags"
-        :icon-right="show ? 'expand_less' : 'expand_more'"
-        @click="show = !show"
-      />
-    </q-card-section>
-    <q-card-section
-      v-if="show"
-      class="row q-gutter-md scroll"
-      style="max-height: 30vh"
+    <q-card
+      flat
     >
-      <div v-if="!allTags || allTags.length === 0">No tags found.</div>
-      <q-chip
-        v-for="t in allTags"
-        text-color="white"
-        clickable
-        class="q-pa-md"
-        :key="t.id"
-        :color="getColorAccordingOf(t)"
-        @click="toggleSelectTag(t)"
-      >
-        {{ t.name }}
-        <q-badge color="primary" transparent floating>
-          {{ t.total_repos }}
-        </q-badge>
-      </q-chip>
-    </q-card-section>
-    <q-card-section
-      v-if="show"
-      class="row items-center"
-    >
-      <div class="text-grey">{{ allTags.length === 1 ? allTags.length + ' tag' : allTags.length + ' tags' }}</div>
-      <q-space />
-      <q-btn
-        flat
-        dense
-        no-caps
-        color="grey-8"
-        icon-right="expand_less"
-        @click="show = false"
-      />
-    </q-card-section>
-  </q-card>
+      <q-bar class="bg-primary text-white">
+        <span class="text-body2">Filter by {{ allTags.length }} tags</span>
+        <q-space />
+        <q-btn icon="close" flat round dense @click="visible = !visible" />
+      </q-bar>
+      <q-card-section class="q-pa-none q-ma-none">
+        <q-tabs
+          v-model="selectedTab"
+          inline-label
+          dense
+        >
+          <q-tab
+            v-for="tab in tabs"
+            :key="tab"
+            :label="tab"
+            :name="tab"
+            class="bg-grey-3 q-pt-xs"
+          >
+            <q-badge color="primary" transparent floating>
+              {{ totals[tab] }}
+            </q-badge>
+          </q-tab>
+        </q-tabs>
+        <q-tab-panels
+          v-model="selectedTab"
+        >
+          <q-tab-panel
+            v-for="tab in tabs"
+            :key="tab"
+            :name="tab"
+          >
+            <div v-if="getTagsByInitial(tab).length === 0">No tags found.</div>
+            <q-chip
+              v-for="t in getTagsByInitial(tab)"
+              text-color="white"
+              clickable
+              class="q-pa-md q-ma-sm"
+              :key="t.id"
+              :color="getColorAccordingOf(t)"
+              @click="toggleSelectTag(t)"
+            >
+              {{ t.name }}
+              <q-badge color="primary" transparent floating>
+                {{ t.total_repos }}
+              </q-badge>
+            </q-chip>
+          </q-tab-panel>
+
+        </q-tab-panels>
+      </q-card-section>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script>
@@ -58,17 +67,24 @@ import constants from '../../constants'
 export default {
   data () {
     return {
-      show: false,
+      visible: false,
+      totals: {},
       allTags: [],
-      selectedIds: []
+      selectedIds: [],
+      selectedTab: 'A',
+      tabs: constants.INITIALS
     }
   },
   created () {
+    this.$subscribe(constants.TAGS_FILTER_SHOW_DIALOG, () => {
+      this.visible = !this.visible
+    })
     this.readAll()
     this.$subscribe(constants.TAGS_FILTER_REFRESH, this.readAll)
   },
   destroyed () {
     this.$unsubscribe(constants.TAGS_FILTER_REFRESH)
+    this.$unsubscribe(constants.TAGS_FILTER_SHOW_DIALOG)
   },
   watch: {
     selectedIds: {
@@ -81,6 +97,19 @@ export default {
   methods: {
     async readAll () {
       this.allTags = await this.$s.tag.readAll()
+      const totals = {}
+      for (const initial of constants.INITIALS) {
+        const tags = this.getTagsByInitial(initial)
+        totals[initial] = tags.length
+      }
+      this.totals = totals
+    },
+    getTagsByInitial (initial) {
+      const allTags = this.allTags
+      if (initial === '#') {
+        return allTags.filter(t => t.name.match(/^\d/))
+      }
+      return allTags.filter(t => t.name.toUpperCase().startsWith(initial))
     },
     getColorAccordingOf (tag) {
       if (this.isSelected(tag.id)) {

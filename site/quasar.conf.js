@@ -9,6 +9,7 @@ module.exports = function (ctx) {
 
   return {
     boot: [
+      'bus',
       'components',
       'services'
     ],
@@ -64,7 +65,13 @@ module.exports = function (ctx) {
         'QToolbar',
         'QToolbarTitle',
         'QMenu',
-        'QBadge'
+        'QBadge',
+        'QTabs',
+        'QTab',
+        'QRouteTab',
+        'QTabPanels',
+        'QTabPanel',
+        'QBar'
       ],
 
       directives: [

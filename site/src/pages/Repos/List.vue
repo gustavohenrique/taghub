@@ -4,11 +4,9 @@
       {{ pagination.rowsNumber === 1 ? pagination.rowsNumber + ' repository' : pagination.rowsNumber + ' repositories' }}
     </div>
 
-    <div class="q-pt-lg q-pb-lg">
-      <tags-filter
-        @updated="filterByTags"
-      />
-    </div>
+    <tags-filter
+      @updated="filterByTags"
+    />
 
     <div ref="cards">
       <q-card

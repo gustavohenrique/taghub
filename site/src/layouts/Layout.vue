@@ -16,6 +16,14 @@
         <div class="q-pl-sm q-gutter-sm row items-center no-wrap">
           <q-btn
             round
+            icon="fas fa-filter"
+            flat
+            dense
+            no-caps
+            @click="showTagsFilterDialog"
+          />
+          <q-btn
+            round
             dense
             flat
             :icon="fabGithub"
@@ -38,11 +46,17 @@
 
 <script>
 import { fabGithub } from '@quasar/extras/fontawesome-v5'
+import constants from '../constants'
 
 export default {
   data () {
     return {
       fabGithub
+    }
+  },
+  methods: {
+    showTagsFilterDialog () {
+      this.$publish(constants.TAGS_FILTER_SHOW_DIALOG)
     }
   }
 }

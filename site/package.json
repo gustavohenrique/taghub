@@ -1,7 +1,7 @@
 {
   "name": "site",
   "version": "0.0.1",
-  "description": "Get starred repositories from GitHub",
+  "description": "All repositories that I starred in GitHub since 2009 organized by tags",
   "productName": "TagHub",
   "cordovaId": "com.gustavohenrique.taghub",
   "capacitorId": "",
