@@ -152,4 +152,4 @@ There are 3 applications inside this mono repository:
 
 ## License
 
-Apache-2.0
+Apache License 2.0, see [LICENSE](LICENSE).
