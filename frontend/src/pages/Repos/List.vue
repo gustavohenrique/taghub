@@ -127,8 +127,8 @@ export default {
       }
     }
   },
-  mounted () {
-    this.search()
+  async mounted () {
+    await this.search()
   },
   computed: {
     pages () {

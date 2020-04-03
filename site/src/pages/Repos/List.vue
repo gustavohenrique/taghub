@@ -88,8 +88,8 @@ export default {
       }
     }
   },
-  mounted () {
-    this.search()
+  async mounted () {
+    await this.search()
   },
   methods: {
     isExpanded (id) {
