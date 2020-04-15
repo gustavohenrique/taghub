@@ -3,7 +3,8 @@ const routes = [
     path: '/',
     component: () => import('layouts/Layout.vue'),
     children: [
-      { path: '', name: 'repositories', component: () => import('pages/Repos/List.vue') }
+      { path: '/', name: 'repositories', component: () => import('pages/Repos/List.vue') },
+      { path: '/tag/:tag', name: 'repositories', component: () => import('pages/Repos/List.vue') }
     ]
   }
 ]

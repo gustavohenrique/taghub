@@ -80,7 +80,8 @@ module.exports = function (ctx) {
 
       plugins: [
         'Loading',
-        'Dialog'
+        'Dialog',
+        'Notify'
       ]
     },
 

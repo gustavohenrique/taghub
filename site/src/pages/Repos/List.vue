@@ -89,7 +89,22 @@ export default {
     }
   },
   async mounted () {
-    await this.search()
+    const { tag } = this.$route.params
+    if (tag) {
+      try {
+        const allTags = await this.$s.tag.readAll()
+        const found = allTags.find(t => t.name.toLowerCase() === tag)
+        await this.filterByTags([found.id])
+      } catch (err) {
+        await this.search()
+        this.$q.notify({
+          message: `Tag ${tag} not found. Showing all repositories.`,
+          color: 'negative'
+        })
+      }
+    } else {
+      await this.search()
+    }
   },
   methods: {
     isExpanded (id) {
@@ -106,10 +121,10 @@ export default {
       const dt = new Date(value)
       return date.formatDate(dt, 'YYYY-MM-DD')
     },
-    filterByTags (tags) {
+    async filterByTags (tags) {
       this.items = []
       this.tags = tags
-      this.search()
+      await this.search()
     },
     async loadMore () {
       const { pagination } = this
