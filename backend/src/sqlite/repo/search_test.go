@@ -32,7 +32,7 @@ func TestSearchRepoReturnAllItems(ts *testing.T) {
 		item := filter.Request{
 			Condition: "$1",
 			Terms: []filter.Term{
-				filter.Term{
+				{
 					ID:       "1",
 					Field:    "name",
 					Operator: "contains",

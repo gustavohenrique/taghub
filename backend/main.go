@@ -11,18 +11,18 @@ import (
 )
 
 func main() {
-    config := configuration.Load()
+	config := configuration.Load()
 	db := sqlite.New(sqlite.Config{
-        URL: config.DatabaseURL,
-    })
+		URL: config.DatabaseURL,
+	})
 	db.Connect()
 
 	repositories := repository.NewRepositoryContainer(db)
 	services := service.NewServiceContainer(repositories)
 
-    port := ":" + config.HTTPPort
+	port := ":" + config.HTTPPort
 	backend := http.NewServer(services)
 
-    fmt.Println("Listening on", port)
-    backend.Start(port)
+	fmt.Println("Listening on", port)
+	backend.Start(port)
 }

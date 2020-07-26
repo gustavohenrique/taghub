@@ -37,13 +37,13 @@ func beforeEach() {
 func TestContainsShouldUseUnaccent(t *testing.T) {
 	req = filter.Request{}
 	req.Terms = []filter.Term{
-		filter.Term{
+		{
 			ID:       "1",
 			Value:    "%questões%",
 			Field:    "name",
 			Operator: "contains",
 		},
-		filter.Term{
+		{
 			ID:       "2",
 			Value:    "36",
 			Field:    "age",
