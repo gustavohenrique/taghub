@@ -7,6 +7,7 @@
 
 [![Build Status](https://travis-ci.com/gustavohenrique/taghub.svg?branch=master)](https://travis-ci.com/gustavohenrique/taghub)
 [![Coverage Status](https://coveralls.io/repos/github/gustavohenrique/taghub/badge.svg?branch=master)](https://coveralls.io/github/gustavohenrique/taghub?branch=master)
+[![Go Report Card](https://goreportcard.com/badge/github.com/gustavohenrique/taghub)](https://goreportcard.com/report/github.com/gustavohenrique/taghub)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=CLK3RJCCUNSR2&currency_code=USD&source=url)
 
