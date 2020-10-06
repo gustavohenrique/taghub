@@ -58,6 +58,7 @@
       <q-btn
         label="More"
         color="primary"
+        unelevated
         @click="loadMore"
         :loading="loading"
         :disable="pagination.page >= pagination.maxPages"
@@ -90,6 +91,7 @@ export default {
   },
   async mounted () {
     const { tag } = this.$route.params
+    console.log('.tag', tag)
     if (tag) {
       try {
         const allTags = await this.$s.tag.readAll()

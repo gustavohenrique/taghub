@@ -25,7 +25,7 @@
             :name="tab"
             class="bg-grey-3 q-pt-xs"
           >
-            <q-badge color="primary" transparent floating>
+            <q-badge style="display:none" color="primary" transparent floating>
               {{ totals[tab] }}
             </q-badge>
           </q-tab>
@@ -39,6 +39,7 @@
             :name="tab"
           >
             <div v-if="getTagsByInitial(tab).length === 0">No tags found.</div>
+            <div v-else class="text-body1 q-py-md">Select one or more tags and click on DONE.</div>
             <q-chip
               v-for="t in getTagsByInitial(tab)"
               text-color="white"
@@ -54,8 +55,16 @@
               </q-badge>
             </q-chip>
           </q-tab-panel>
-
         </q-tab-panels>
+      </q-card-section>
+      <q-card-section class="text-center">
+        <q-btn
+          color="primary"
+          label="Done"
+          unelevated
+          style="width:200px"
+          @click="visible=false"
+        />
       </q-card-section>
     </q-card>
   </q-dialog>
