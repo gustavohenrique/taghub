@@ -1,24 +1,24 @@
 export default class {
   constructor (deps) {
-    this.$http = deps.http
+    this.$http = deps.$http
   }
 
   async readAll () {
-    const resp = await this.$http.get('/api/tag')
+    const resp = await this.$http().get('/api/tag')
     return resp.data.data
   }
 
   async getTotalReposByTag (tag) {
-    const resp = await this.$http.get(`/api/tag/${tag.id}/total`)
+    const resp = await this.$http().get(`/api/tag/${tag.id}/total`)
     return resp.data.data
   }
 
   async update (tag) {
-    await this.$http.put(`/api/tag/${tag.id}`, tag)
+    await this.$http().put(`/api/tag/${tag.id}`, tag)
   }
 
   async remove (tag) {
-    await this.$http.delete(`/api/tag/${tag.id}`)
+    await this.$http().delete(`/api/tag/${tag.id}`)
   }
 
   async search (filter) {
@@ -33,7 +33,6 @@ export default class {
         sort: pagination.descending ? 'desc' : 'asc'
       }
     }
-    console.log('term:', term)
     if (term) {
       req.terms = [{
         id: '1',
@@ -43,7 +42,7 @@ export default class {
       }]
       req.condition = '$1'
     }
-    const resp = await this.$http.post(`/api/tag/search?total_repos=${filter.total_repos}`, req)
+    const resp = await this.$http().post(`/api/tag/search?total_repos=${filter.total_repos}`, req)
     return {
       items: resp.data.data || [],
       total: resp.data.meta.total || 0

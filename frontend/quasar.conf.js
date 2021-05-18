@@ -1,11 +1,10 @@
 module.exports = function (ctx) {
   function getFromEnvOrDefault (key, value) {
     if (process.env[key]) {
-      return JSON.stringify(process.env[key])
+      return process.env[key]
     }
-    return JSON.stringify(value)
+    return value
   }
-  const API_URL = getFromEnvOrDefault('API_URL', '')
 
   return {
     boot: [
@@ -28,7 +27,7 @@ module.exports = function (ctx) {
       iconSet: 'fontawesome-v5', // Quasar icon set
       lang: 'en-us', // Quasar language pack
       all: false,
-      
+
       config: {
         brand: {
           primary: '#434343',
@@ -111,7 +110,7 @@ module.exports = function (ctx) {
     build: {
       publicPath: process.env.PUBLIC_PATH || '/',
       env: {
-        API_URL
+        API_URL: getFromEnvOrDefault('API_URL', '')
       },
       scopeHoisting: true,
       vueRouterMode: 'history',

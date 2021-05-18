@@ -1,15 +1,16 @@
 import axios from 'axios'
 
-const instance = axios.create({
-  baseURL: process.env.API_URL,
-  timeout: 120000
-})
-
-instance.defaults.headers.common['Content-Type'] = 'application/json'
+function getHttpClient () {
+  const instance = axios.create({
+    baseURL: process.env.API_URL,
+    timeout: 60000
+  })
+  instance.defaults.headers.common['Content-Type'] = 'application/json'
+  return instance
+}
 
 const deps = {
-  http: instance,
-  axios: axios
+  $http: getHttpClient
 }
 
 const requireFile = require.context(

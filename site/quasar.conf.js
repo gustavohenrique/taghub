@@ -1,11 +1,10 @@
 module.exports = function (ctx) {
   function getFromEnvOrDefault (key, value) {
     if (process.env[key]) {
-      return JSON.stringify(process.env[key])
+      return process.env[key]
     }
-    return JSON.stringify(value)
+    return value
   }
-  const API_URL = getFromEnvOrDefault('API_URL', 'statics/jsonfiles')
 
   return {
     boot: [
@@ -95,7 +94,7 @@ module.exports = function (ctx) {
     build: {
       publicPath: process.env.PUBLIC_PATH || '/',
       env: {
-        API_URL
+        API_URL: getFromEnvOrDefault('API_URL', 'statics/jsonfiles')
       },
       scopeHoisting: true,
       vueRouterMode: 'history',

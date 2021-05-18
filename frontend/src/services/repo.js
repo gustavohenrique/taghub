@@ -1,15 +1,15 @@
 export default class {
   constructor (deps) {
-    this.$http = deps.http
+    this.$http = deps.$http
   }
 
   async getTotalStarredsRepositoriesToSync () {
-    const resp = await this.$http.get('/api/repo/sync')
+    const resp = await this.$http().get('/api/repo/sync')
     return resp.data.data
   }
 
   async syncStarredRepositoriesNow () {
-    const resp = await this.$http.post('/api/repo/sync')
+    const resp = await this.$http().post('/api/repo/sync')
     return resp.data.data
   }
 
@@ -18,16 +18,16 @@ export default class {
       id: tag.id,
       name: tag.name
     }
-    const resp = await this.$http.post(`/api/repo/${repo.id}/tag`, req)
+    const resp = await this.$http().post(`/api/repo/${repo.id}/tag`, req)
     return resp.data.data
   }
 
   async removeTagFromRepo (repo, tag) {
-    await this.$http.delete(`/api/repo/${repo.id}/tag/${tag.id}`)
+    await this.$http().delete(`/api/repo/${repo.id}/tag/${tag.id}`)
   }
 
   async remove (repo) {
-    await this.$http.delete(`/api/repo/${repo.id}`)
+    await this.$http().delete(`/api/repo/${repo.id}`)
   }
 
   async searchByTagsIds (filter) {
@@ -43,7 +43,7 @@ export default class {
       },
       tags
     }
-    const resp = await this.$http.post('/api/repo/tags/search', req)
+    const resp = await this.$http().post('/api/repo/tags/search', req)
     return {
       items: resp.data.data || [],
       total: resp.data.meta.total || 0
@@ -62,7 +62,7 @@ export default class {
         sort: pagination.descending ? 'desc' : 'asc'
       }
     }
-    const resp = await this.$http.post('/api/repo/search', req)
+    const resp = await this.$http().post('/api/repo/search', req)
     return {
       items: resp.data.data || [],
       total: resp.data.meta.total || 0
