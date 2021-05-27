@@ -33,7 +33,7 @@ add the token in `.makerc` file like this:
 
 ```sh
 cd backend
-echo "GITHUB_PERSONAL_TOKEN=69xyo22bc52rt3v8fx721b9d6b68092abacb123b" > .makerc
+echo "GITHUB_PERSONAL_TOKEN=<token>" > .makerc
 ```
 
 ## Usage
