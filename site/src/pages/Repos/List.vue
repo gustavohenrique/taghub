@@ -91,7 +91,6 @@ export default {
   },
   async mounted () {
     const { tag } = this.$route.params
-    console.log('.tag', tag)
     if (tag) {
       try {
         const allTags = await this.$s.tag.readAll()

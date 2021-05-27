@@ -105,16 +105,20 @@ export default {
   },
   methods: {
     async readAll () {
-      this.allTags = await this.$s.tag.readAll()
       const totals = {}
-      for (const initial of constants.INITIALS) {
-        const tags = this.getTagsByInitial(initial)
-        totals[initial] = tags.length
+      try {
+        this.allTags = await this.$s.tag.readAll()
+        for (const initial of constants.INITIALS) {
+          const tags = this.getTagsByInitial(initial)
+          totals[initial] = tags.length
+        }
+      } catch (err) {
+        console.error('TagsFilter.readAll', err)
       }
       this.totals = totals
     },
     getTagsByInitial (initial) {
-      const allTags = this.allTags
+      const { allTags } = this
       if (initial === '#') {
         return allTags.filter(t => t.name.match(/^\d/))
       }
